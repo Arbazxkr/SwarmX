@@ -32,4 +32,12 @@ export { loadConfig, buildEngineFromConfig, loadAndBuild } from "./utils/config.
 export { Logger, createLogger } from "./utils/logger.js";
 export { withRetry, type RetryOptions } from "./utils/retry.js";
 
+// Channels
+export { ChannelAdapter, type ChannelConfig, type ChannelMessage } from "./channels/adapter.js";
+export { WhatsAppChannel, type WhatsAppConfig } from "./channels/whatsapp.js";
+export { TelegramChannel, type TelegramConfig } from "./channels/telegram.js";
+export { DiscordChannel, type DiscordConfig } from "./channels/discord.js";
+export { SlackChannel, type SlackConfig } from "./channels/slack.js";
+export { WebChatChannel, type WebChatConfig } from "./channels/webchat.js";
+
 export const VERSION = "0.2.0";
