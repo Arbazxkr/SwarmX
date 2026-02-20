@@ -1,108 +1,113 @@
-# ⚛ SwarmX
-
-**A model-agnostic, async, event-driven multi-agent orchestration framework for developers.**
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6+-blue.svg)](https://www.typescriptlang.org/)
-[![Node.js 20+](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
+<div align="center">
+  <img src="./Swarmx.png" width="120" alt="SwarmX Logo"/>
+  <h1>⚛ SwarmX</h1>
+  <p><strong>A Model-Agnostic, Event-Driven Multi-Agent Orchestration Framework</strong></p>
+  <p>Build and coordinate multiple AI agents as one structured system.</p>
+</div>
 
 ---
 
-## Overview
+## 🌊 Core Overview
 
-SwarmX is a lightweight framework for orchestrating multiple AI agents that communicate through an event-driven architecture. It is:
+SwarmX is a developer-focused framework for orchestrating multiple AI agents that communicate through an event-driven architecture. No vendor lock-in, no cloud dependency — just clean, composable agent systems.
 
-- **Model-agnostic** — Supports OpenAI, Anthropic/Claude, Google/Gemini, and xAI/Grok out of the box
+- **Model-agnostic** — OpenAI, Anthropic/Claude, Google/Gemini, xAI/Grok
 - **Async & event-driven** — Non-blocking event bus with topic-based pub/sub
-- **Local-first** — Runs entirely on your machine, no cloud orchestration required
-- **CLI-first** — Full-featured CLI for managing swarms from the terminal
+- **Local-first** — Runs entirely on your machine
+- **CLI-first** — Full-featured CLI for managing swarms
 - **Config-driven** — Define your entire swarm in a single YAML file
 - **TypeScript-first** — Written in TypeScript with full type safety
-- **Developer-focused** — Clean APIs, comprehensive types, and minimal dependencies
 
-## Architecture
+---
 
-```
-┌──────────────────────────────────────────────────┐
-│                  SwarmX Engine                     │
-│                 (Orchestrator)                     │
-├──────────────────────────────────────────────────┤
-│                                                    │
-│   ┌──────────┐  ┌──────────┐  ┌──────────┐       │
-│   │ Agent A  │  │ Agent B  │  │ Agent C  │       │
-│   │(OpenAI)  │  │(Claude)  │  │(Gemini)  │       │
-│   └────┬─────┘  └────┬─────┘  └────┬─────┘       │
-│        │              │              │              │
-│        ▼              ▼              ▼              │
-│   ┌─────────────────────────────────────────┐     │
-│   │            Event Bus                     │     │
-│   │  (Topic-based pub/sub, non-blocking)     │     │
-│   └─────────────────────────────────────────┘     │
-│        │                                           │
-│        ▼                                           │
-│   ┌──────────────┐   ┌───────────────────┐        │
-│   │Task Scheduler│   │Provider Registry  │        │
-│   └──────────────┘   └───────────────────┘        │
-│                                                    │
-├──────────────────────────────────────────────────┤
-│            Provider Abstraction Layer              │
-│  ┌────────┐ ┌─────────┐ ┌────────┐ ┌─────────┐  │
-│  │ OpenAI │ │Anthropic│ │ Google │ │   xAI   │  │
-│  └────────┘ └─────────┘ └────────┘ └─────────┘  │
-└──────────────────────────────────────────────────┘
+## ⚙️ 1. How It Works
+
+Agents subscribe to event topics, receive tasks, process them through an LLM provider, and emit results — all through a central event bus. No direct agent-to-agent calls.
+
+```mermaid
+sequenceDiagram
+    participant CLI
+    participant Engine
+    participant EventBus
+    participant Agent_A
+    participant Agent_B
+    participant Provider
+
+    CLI->>Engine: submitTask("Analyze the market")
+    Engine->>EventBus: publish(task.created)
+    EventBus->>Agent_A: deliver event
+    EventBus->>Agent_B: deliver event
+    Agent_A->>Provider: complete(messages)
+    Provider-->>Agent_A: CompletionResponse
+    Agent_A->>EventBus: publish(agent.response.analyst)
+    Agent_B->>Provider: complete(messages)
+    Provider-->>Agent_B: CompletionResponse
+    Agent_B->>EventBus: publish(agent.response.writer)
 ```
 
-### Core Principles
+---
 
-1. **No direct agent-to-agent calls** — Agents communicate exclusively through the event bus
-2. **Provider independence** — The core engine has zero dependency on any specific LLM vendor
-3. **Declarative binding** — Agents bind to providers via config, not code
-4. **Non-blocking events** — All event dispatch is async with error isolation
-5. **Clean lifecycle** — Agents follow: `initialize → process → shutdown`
+## 📈 2. Architecture
 
-## Quick Start
+```mermaid
+graph TB
+    CLI[CLI / Programmatic API] --> Engine[SwarmX Engine]
+    Engine --> EB[Event Bus]
+    Engine --> PR[Provider Registry]
+    Engine --> TS[Task Scheduler]
 
-### Installation
+    EB --> A1[Agent: Coordinator]
+    EB --> A2[Agent: Researcher]
+    EB --> A3[Agent: Writer]
+
+    PR --> P1[OpenAI]
+    PR --> P2[Anthropic]
+    PR --> P3[Google]
+    PR --> P4[xAI]
+
+    A1 -.->|bound to| P1
+    A2 -.->|bound to| P2
+    A3 -.->|bound to| P3
+
+    TS -->|schedules via| EB
+```
+
+---
+
+## 🚀 3. Quick Start
 
 ```bash
-# Clone the repository
-git clone https://github.com/swarmx/swarmx.git
-cd swarmx
-
-# Install dependencies
+# Clone & install
+git clone https://github.com/Arbazxkr/SwarmX.git
+cd SwarmX
 npm install
 
-# Build
-npm run build
-```
-
-### Create a Swarm
-
-```bash
-# Initialize a new swarm project
+# Initialize a swarm project
 npx tsx src/cli/main.ts init --name my-swarm --provider openai
 
 # Set your API key
 export OPENAI_API_KEY=your-key-here
 
-# Run the swarm
+# Run interactively
 npx tsx src/cli/main.ts run my-swarm.yaml --interactive
 ```
 
 ### CLI Commands
 
 ```bash
-swarmx run <config.yaml>          # Run a swarm
-swarmx run <config.yaml> -i       # Run in interactive mode
-swarmx run <config.yaml> -t "..."  # Run with an initial task
-swarmx validate <config.yaml>     # Validate a config file
-swarmx status <config.yaml>       # Show swarm configuration
-swarmx init --name <name>         # Scaffold a new swarm project
+swarmx run <config.yaml>           # Run a swarm
+swarmx run <config.yaml> -i        # Interactive mode
+swarmx run <config.yaml> -t "..."  # Run with a task
+swarmx validate <config.yaml>      # Validate config
+swarmx status <config.yaml>        # Show swarm info
+swarmx init --name <name>          # Scaffold a new project
 ```
 
-## Configuration
+---
 
-Swarms are defined in YAML:
+## 🔧 4. Configuration
+
+Swarms are defined declaratively in YAML. Agents bind to providers by name. API keys resolve from environment variables.
 
 ```yaml
 swarm:
@@ -113,7 +118,6 @@ swarm:
       type: openai
       api_key: ${OPENAI_API_KEY}
       model: gpt-4o
-      temperature: 0.7
 
     anthropic:
       type: anthropic
@@ -124,7 +128,7 @@ swarm:
     coordinator:
       provider: openai
       system_prompt: |
-        You are the coordinator. You break down tasks
+        You are the coordinator. Break down tasks
         and synthesize agent responses.
       subscriptions:
         - task.created
@@ -139,155 +143,87 @@ swarm:
         - research.*
 ```
 
-### Environment Variables
+---
 
-API keys can reference environment variables with `${VAR_NAME}` syntax:
-
-```yaml
-api_key: ${OPENAI_API_KEY}
-```
-
-## Programmatic API
-
-```typescript
-import { SwarmEngine } from "swarmx";
-import { OpenAIProvider } from "swarmx/providers";
-
-const engine = new SwarmEngine();
-
-// Register a provider
-const openai = new OpenAIProvider({ apiKey: "your-key", model: "gpt-4o" });
-engine.registerProvider("openai", openai);
-
-// Add agents
-engine.addAgent({
-  name: "assistant",
-  provider: "openai",
-  systemPrompt: "You are a helpful assistant.",
-  subscriptions: ["task.created"],
-});
-
-// Run
-await engine.start();
-await engine.submitTask("What is the meaning of life?");
-await new Promise((r) => setTimeout(r, 5000));
-await engine.stop();
-```
-
-### Custom Agents
-
-```typescript
-import { Agent, type AgentConfig } from "swarmx";
-import { type SwarmEvent } from "swarmx";
-
-class MyAgent extends Agent {
-  async onEvent(event: SwarmEvent): Promise<void> {
-    if (event.topic === "analysis.request") {
-      const result = await this.think(event.payload.content as string);
-      await this.emit("analysis.complete", {
-        result: result?.message.content,
-      });
-    }
-  }
-}
-
-// Use in engine
-engine.addAgent(config, MyAgent);
-```
-
-## Supported Providers
-
-| Provider | Package | Models |
-|----------|---------|--------|
-| **OpenAI** | `openai` | GPT-4o, GPT-4, GPT-3.5-turbo |
-| **Anthropic** | `@anthropic-ai/sdk` | Claude 3.5 Sonnet, Claude 3 Opus/Haiku |
-| **Google** | `@google/genai` | Gemini 2.0 Flash, Gemini 1.5 Pro |
-| **xAI** | `openai` (compatible) | Grok-2, Grok-1 |
-
-## Event System
+## 🛡️ 5. Event System
 
 The event bus supports topic-based routing with wildcards:
 
-```
-task.created        → exact match
-task.*              → matches task.created, task.completed, etc.
-agent.response.*    → matches any agent response
-*                   → global listener (receives everything)
-```
+| Pattern | Matches |
+|---------|---------|
+| `task.created` | Exact match only |
+| `task.*` | `task.created`, `task.completed`, etc. |
+| `agent.response.*` | Any agent response |
+| `*` | Everything (global listener) |
 
-Events are processed asynchronously with error isolation — a failing handler never blocks other handlers.
+Events are processed async with full error isolation — a failing handler never blocks others.
 
-## Project Structure
+---
+
+## 🏗️ Directory Structure
 
 ```
 SwarmX/
 ├── src/
-│   ├── index.ts                 # Package root & public API
+│   ├── index.ts                  # Package root & public API
 │   ├── core/
-│   │   ├── agent.ts             # Agent base class & lifecycle
-│   │   ├── engine.ts            # Core orchestration engine
-│   │   ├── event-bus.ts         # Async event bus with pub/sub
-│   │   ├── provider.ts          # Provider abstraction layer
-│   │   └── scheduler.ts         # Task scheduling & dependencies
+│   │   ├── agent.ts              # Agent base class & lifecycle
+│   │   ├── engine.ts             # Core orchestration engine
+│   │   ├── event-bus.ts          # Async event bus with pub/sub
+│   │   ├── provider.ts           # Provider abstraction layer
+│   │   └── scheduler.ts          # Task scheduling & dependencies
 │   ├── providers/
-│   │   ├── index.ts             # Provider barrel export
-│   │   ├── openai-provider.ts   # OpenAI adapter
+│   │   ├── openai-provider.ts    # OpenAI adapter
 │   │   ├── anthropic-provider.ts # Anthropic/Claude adapter
-│   │   ├── google-provider.ts   # Google/Gemini adapter
-│   │   └── xai-provider.ts      # xAI/Grok adapter
+│   │   ├── google-provider.ts    # Google/Gemini adapter
+│   │   └── xai-provider.ts       # xAI/Grok adapter
 │   ├── cli/
-│   │   └── main.ts              # CLI entry point (Commander + chalk)
+│   │   └── main.ts               # CLI entry point
 │   └── utils/
-│       └── config.ts            # YAML config loader
-├── tests/
-│   ├── event-bus.test.ts        # Event bus tests
-│   ├── agent-engine.test.ts     # Agent & engine tests
-│   └── scheduler.test.ts        # Scheduler tests
-├── examples/
-│   ├── research_team.yaml       # Multi-agent research team
-│   ├── multi_provider.yaml      # Multi-provider swarm
-│   └── programmatic-usage.ts    # Programmatic API example
-├── package.json                 # Dependencies & scripts
-├── tsconfig.json                # TypeScript config
-├── vitest.config.ts             # Test config
-├── LICENSE                      # MIT license with attribution
-├── README.md                    # This file
-└── .gitignore
+│       └── config.ts             # YAML config loader
+├── tests/                        # Vitest test suite
+├── examples/                     # YAML + TypeScript examples
+├── package.json
+├── tsconfig.json
+└── LICENSE                       # MIT (with OpenClaw attribution)
 ```
 
-## Development
+---
 
-```bash
-# Install dependencies
-npm install
+## 🔗 Technical Stack
 
-# Build
-npm run build
+- **Language:** TypeScript 5.6+, Node.js 20+
+- **CLI:** Commander, chalk
+- **LLM SDKs:** `openai`, `@anthropic-ai/sdk`, `@google/genai`
+- **Config:** YAML with env var resolution
+- **Testing:** Vitest
+- **Validation:** Zod, strict TypeScript
 
-# Run tests
-npm test
+---
 
-# Run tests in watch mode
-npm run test:watch
+## 📊 Supported Providers
 
-# Type check
-npm run typecheck
+| Provider | Package | Default Model |
+|----------|---------|---------------|
+| **OpenAI** | `openai` | `gpt-4o` |
+| **Anthropic** | `@anthropic-ai/sdk` | `claude-sonnet-4-20250514` |
+| **Google** | `@google/genai` | `gemini-2.0-flash` |
+| **xAI** | `openai` (compatible) | `grok-2-latest` |
 
-# Run CLI in dev mode
-npx tsx src/cli/main.ts --help
-```
+---
 
-## Attribution
+## 🧠 Attribution
 
-SwarmX draws architectural inspiration from the [OpenClaw](https://github.com/openclaw/openclaw) project (MIT License), specifically:
+SwarmX draws architectural inspiration from the [OpenClaw](https://github.com/openclaw/openclaw) project (MIT License):
 
-- **Gateway → Engine pattern** — Central control plane for routing and coordination
+- **Gateway → Engine** — Central control plane pattern
 - **Channel adapters → Provider adapters** — Pluggable integration layer
 - **Multi-agent routing** — Isolated agents with declarative bindings
-- **Event-driven architecture** — WebSocket event patterns → async event bus
-- **Config-driven setup** — Declarative YAML-based definitions
-- **TypeScript-first** — Same language choice as the original
+- **Event-driven architecture** — WebSocket events → async event bus
+- **Config-driven setup** — Declarative YAML definitions
 
-## License
+---
 
-MIT License. See [LICENSE](LICENSE) for details.
+<div align="center">
+  <strong>MIT License</strong> · Built with TypeScript · Inspired by OpenClaw
+</div>
