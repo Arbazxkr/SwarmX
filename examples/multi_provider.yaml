@@ -1,0 +1,64 @@
+# SwarmX Example — Multi-Provider Swarm
+# Demonstrates using multiple LLM providers in a single swarm,
+# with each agent bound to a different provider.
+#
+# Usage:
+#   export OPENAI_API_KEY=your-key
+#   export ANTHROPIC_API_KEY=your-key
+#   export GOOGLE_API_KEY=your-key
+#   swarmx run examples/multi_provider.yaml --interactive
+
+swarm:
+  name: "Multi-Provider Analysis Team"
+
+  providers:
+    openai:
+      type: openai
+      api_key: ${OPENAI_API_KEY}
+      model: gpt-4o
+      temperature: 0.7
+
+    anthropic:
+      type: anthropic
+      api_key: ${ANTHROPIC_API_KEY}
+      model: claude-sonnet-4-20250514
+      temperature: 0.7
+      max_tokens: 4096
+
+    google:
+      type: google
+      api_key: ${GOOGLE_API_KEY}
+      model: gemini-2.0-flash
+      temperature: 0.7
+
+  agents:
+    analyst:
+      provider: openai
+      system_prompt: |
+        You are an analytical agent powered by GPT-4o. You excel at
+        data analysis, pattern recognition, and logical reasoning.
+        Provide structured, data-driven insights.
+      subscriptions:
+        - task.created
+        - analysis.request
+
+    critic:
+      provider: anthropic
+      system_prompt: |
+        You are a critical review agent powered by Claude. You excel at
+        finding flaws in reasoning, identifying biases, and suggesting
+        improvements. Be constructive but thorough in your critiques.
+      subscriptions:
+        - task.created
+        - review.request
+
+    synthesizer:
+      provider: google
+      system_prompt: |
+        You are a synthesis agent powered by Gemini. You excel at
+        combining multiple perspectives, finding common ground, and
+        creating unified narratives. Produce comprehensive summaries.
+      subscriptions:
+        - task.created
+        - synthesis.request
+        - agent.response.*

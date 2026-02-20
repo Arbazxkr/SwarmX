@@ -1,0 +1,62 @@
+# SwarmX Example — Research Team Swarm
+# This config demonstrates a multi-agent research team using OpenAI.
+#
+# Usage:
+#   export OPENAI_API_KEY=your-key
+#   swarmx run examples/research_team.yaml --interactive
+
+swarm:
+  name: "Research Team"
+
+  providers:
+    openai:
+      type: openai
+      api_key: ${OPENAI_API_KEY}
+      model: gpt-4o
+      temperature: 0.7
+      max_tokens: 4096
+
+  agents:
+    coordinator:
+      provider: openai
+      system_prompt: |
+        You are the Coordinator agent in a research team. Your role is to:
+        1. Receive incoming tasks
+        2. Break them down into sub-tasks
+        3. Understand and synthesize responses from other agents
+        4. Provide a final, cohesive answer
+
+        When you receive a task, analyze it and provide a structured response.
+        Be concise and organized.
+      subscriptions:
+        - task.created
+        - agent.response.*
+
+    researcher:
+      provider: openai
+      model: gpt-4o
+      system_prompt: |
+        You are the Researcher agent. Your role is to:
+        1. Analyze topics in depth
+        2. Find patterns and connections
+        3. Provide factual, well-sourced insights
+        4. Flag uncertainties and knowledge gaps
+
+        Focus on accuracy over speed. Be thorough.
+      subscriptions:
+        - task.created
+        - research.request
+
+    writer:
+      provider: openai
+      system_prompt: |
+        You are the Writer agent. Your role is to:
+        1. Take research and analysis
+        2. Produce clear, well-structured prose
+        3. Ensure readability and proper formatting
+        4. Adapt tone to the audience
+
+        Focus on clarity and elegance.
+      subscriptions:
+        - writing.request
+        - task.created
