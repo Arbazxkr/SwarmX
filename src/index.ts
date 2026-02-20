@@ -25,6 +25,7 @@ export { ToolExecutor, executeToolLoop, type ToolFunction, type ToolRegistry } f
 export { SessionStore, type Session, type SessionStoreConfig } from "./core/session.js";
 export { ContextManager, estimateTokens, estimateMessagesTokens, pruneSliding, type ContextConfig } from "./core/context.js";
 export { UsageTracker } from "./core/usage.js";
+export { Gateway, type GatewayConfig } from "./core/gateway.js";
 
 // Utils
 export { loadConfig, buildEngineFromConfig, loadAndBuild } from "./utils/config.js";

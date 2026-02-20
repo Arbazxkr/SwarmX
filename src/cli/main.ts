@@ -417,6 +417,92 @@ program
         console.log("");
     });
 
+// ── Gateway ───────────────────────────────────────────────────
+
+program
+    .command("gateway")
+    .description("Start the WebSocket Gateway control plane")
+    .argument("<config>", "Path to the swarm YAML config")
+    .option("-p, --port <port>", "Gateway port", "18789")
+    .option("--host <host>", "Gateway host", "127.0.0.1")
+    .option("--auth <token>", "Auth token for clients")
+    .option("-l, --log-level <level>", "Log level", "info")
+    .action(async (configFile: string, opts: { port: string; host: string; auth?: string; logLevel?: string }) => {
+        banner();
+
+        if (opts.logLevel) process.env.SWARMX_LOG_LEVEL = opts.logLevel;
+
+        let engine;
+        try {
+            engine = loadAndBuild(configFile);
+        } catch (err) {
+            fail(`Config error: ${(err as Error).message}`);
+            process.exit(1);
+        }
+
+        // Import Gateway dynamically to avoid requiring ws at CLI parse time
+        const { Gateway } = await import("../core/gateway.js");
+        const gateway = new Gateway(engine, {
+            port: parseInt(opts.port),
+            host: opts.host,
+            authToken: opts.auth,
+        });
+
+        await engine.start();
+        await gateway.start();
+
+        success(`Swarm started`);
+        success(`Gateway running on ws://${opts.host}:${opts.port}`);
+        if (opts.auth) success(`Auth required: token set`);
+        console.log("");
+
+        const status = engine.status();
+        const agents = Object.entries(status.agents as Record<string, any>);
+        table("Agents", ["Name", "Provider", "State"], agents.map(([_, a]) => [a.name, a.provider, a.state]));
+
+        console.log(chalk.dim("  Gateway is running. Press Ctrl+C to stop.\n"));
+
+        // Keep alive
+        await new Promise(() => { });
+    });
+
+// ── Doctor ─────────────────────────────────────────────────────
+
+program
+    .command("doctor")
+    .description("Run full system diagnostics")
+    .argument("<config>", "Path to the swarm YAML config")
+    .action(async (configFile: string) => {
+        banner();
+
+        let engine;
+        try {
+            engine = loadAndBuild(configFile);
+        } catch (err) {
+            fail(`Config error: ${(err as Error).message}`);
+            process.exit(1);
+        }
+
+        await engine.start();
+        const checks = await engine.doctor();
+        await engine.stop();
+
+        console.log(chalk.bold("  System Diagnostics\n"));
+
+        for (const check of checks) {
+            const icon = check.status === "pass" ? chalk.green("✓") : check.status === "warn" ? chalk.yellow("⚠") : chalk.red("✗");
+            console.log(`  ${icon} ${check.check.padEnd(25)} ${chalk.dim(check.detail)}`);
+        }
+
+        const passed = checks.filter((c) => c.status === "pass").length;
+        const warnings = checks.filter((c) => c.status === "warn").length;
+        const failed = checks.filter((c) => c.status === "fail").length;
+
+        console.log("");
+        console.log(`  ${chalk.bold("Result:")} ${chalk.green(`${passed} passed`)}, ${chalk.yellow(`${warnings} warnings`)}, ${chalk.red(`${failed} failed`)}`);
+        console.log("");
+    });
+
 // ── Health ────────────────────────────────────────────────────
 
 program

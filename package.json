@@ -1,13 +1,33 @@
 {
     "name": "swarmx",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "A model-agnostic, async, event-driven multi-agent orchestration framework",
     "type": "module",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        },
+        "./providers": {
+            "import": "./dist/providers/index.js"
+        }
+    },
     "bin": {
         "swarmx": "./dist/cli/main.js"
     },
+    "files": [
+        "dist/",
+        "README.md",
+        "LICENSE",
+        "install.sh"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Arbazxkr/SwarmX.git"
+    },
+    "homepage": "https://github.com/Arbazxkr/SwarmX",
     "scripts": {
         "build": "tsc",
         "dev": "tsx watch src/cli/main.ts",
@@ -33,29 +53,31 @@
         "grok"
     ],
     "license": "MIT",
-    "author": "SwarmX Contributors",
+    "author": "Arbaz Khan",
     "engines": {
         "node": ">=20.0.0"
     },
     "dependencies": {
-        "openai": "^4.70.0",
         "@anthropic-ai/sdk": "^0.30.0",
         "@google/genai": "^1.0.0",
-        "commander": "^12.0.0",
-        "chalk": "^5.3.0",
-        "yaml": "^2.6.0",
-        "cli-table3": "^0.6.5",
         "boxen": "^8.0.0",
-        "ora": "^8.0.0",
+        "chalk": "^5.3.0",
+        "cli-table3": "^0.6.5",
+        "commander": "^12.0.0",
+        "dotenv": "^16.4.0",
         "eventemitter3": "^5.0.0",
-        "zod": "^3.23.0",
-        "dotenv": "^16.4.0"
+        "openai": "^4.70.0",
+        "ora": "^8.0.0",
+        "ws": "^8.19.0",
+        "yaml": "^2.6.0",
+        "zod": "^3.23.0"
     },
     "devDependencies": {
-        "typescript": "^5.6.0",
-        "tsx": "^4.19.0",
-        "vitest": "^2.1.0",
         "@types/node": "^22.0.0",
-        "eslint": "^9.0.0"
+        "@types/ws": "^8.18.1",
+        "eslint": "^9.0.0",
+        "tsx": "^4.19.0",
+        "typescript": "^5.6.0",
+        "vitest": "^2.1.0"
     }
 }

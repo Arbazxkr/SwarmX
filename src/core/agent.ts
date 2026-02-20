@@ -270,6 +270,53 @@ export class Agent {
         await this.eventBus.publish(createEvent({ topic, payload, source: this.agentId, priority }));
     }
 
+    // ── Streaming ──────────────────────────────────────────────
+
+    /**
+     * Stream a response token-by-token.
+     * Yields each token as it arrives from the provider.
+     */
+    async *thinkStream(userInput: string): AsyncIterable<string> {
+        if (!this.provider?.stream) {
+            // Fallback to non-streaming
+            const response = await this.think(userInput);
+            if (response) yield response.message.content;
+            return;
+        }
+
+        this.messageHistory.push({ role: Role.USER, content: userInput });
+
+        if (this.contextManager.needsPruning(this.messageHistory)) {
+            this.messageHistory = this.contextManager.prune(this.messageHistory);
+        }
+
+        const overrides: Record<string, unknown> = {};
+        if (this.config.model) overrides.model = this.config.model;
+        if (this.config.temperature !== undefined) overrides.temperature = this.config.temperature;
+
+        let fullContent = "";
+        for await (const token of this.provider.stream(this.messageHistory, undefined, overrides)) {
+            fullContent += token;
+            yield token;
+        }
+
+        // Add to history
+        this.messageHistory.push({ role: Role.ASSISTANT, content: fullContent });
+
+        // Persist
+        if (this.sessionStore && this.currentSessionId) {
+            this.sessionStore.addMessage(this.currentSessionId, { role: Role.USER, content: userInput });
+            this.sessionStore.addMessage(this.currentSessionId, { role: Role.ASSISTANT, content: fullContent });
+        }
+
+        // Emit response event
+        await this.emit(`agent.response.${this.config.name}`, {
+            agentId: this.agentId,
+            content: fullContent,
+            streamed: true,
+        });
+    }
+
     // ── Introspection ───────────────────────────────────────────
 
     get history(): Message[] { return [...this.messageHistory]; }
