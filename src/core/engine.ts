@@ -1,18 +1,18 @@
 /**
  * SwarmX Engine — Core orchestration engine.
  *
- * The SwarmEngine is the top-level coordinator that wires together the
- * event bus, task scheduler, provider registry, and agents.
- *
- * Adapted from OpenClaw's Gateway pattern: the Gateway acts as the single
- * control plane for sessions, channels, tools, and events. The SwarmEngine
- * serves the same role for multi-agent orchestration.
+ * The top-level coordinator that wires event bus, task scheduler,
+ * provider registry, and agents into a single cohesive system.
+ * Handles graceful startup, shutdown, and signal trapping.
  */
 
 import { EventBus, createEvent, type SwarmEvent } from "./event-bus.js";
 import { Agent, type AgentConfig } from "./agent.js";
 import { ProviderRegistry, type ProviderBase, type ProviderConfig } from "./provider.js";
-import { TaskScheduler, createTask, type Task } from "./scheduler.js";
+import { TaskScheduler, createTask } from "./scheduler.js";
+import { createLogger } from "../utils/logger.js";
+
+const log = createLogger("Engine");
 
 export class SwarmEngine {
     readonly eventBus: EventBus;
@@ -21,88 +21,55 @@ export class SwarmEngine {
 
     private agents = new Map<string, Agent>();
     private _running = false;
+    private shutdownHandlers: (() => void)[] = [];
 
     constructor(eventBus?: EventBus) {
         this.eventBus = eventBus ?? new EventBus();
         this.providerRegistry = new ProviderRegistry();
         this.scheduler = new TaskScheduler(this.eventBus);
 
-        // Register built-in provider classes
-        this.registerBuiltinProviders();
-
-        // Subscribe to engine-level events
-        this.eventBus.subscribe(
-            "agent.response.*",
-            (event) => this.onAgentResponse(event),
-            "engine",
-        );
-        this.eventBus.subscribe(
-            "agent.error",
-            (event) => this.onAgentError(event),
-            "engine",
-        );
+        this.eventBus.subscribe("agent.response.*", (e) => this.onAgentResponse(e), "engine");
+        this.eventBus.subscribe("agent.error", (e) => this.onAgentError(e), "engine");
     }
 
-    // ── Provider Management ─────────────────────────────────────
+    // ── Providers ───────────────────────────────────────────────
 
-    private registerBuiltinProviders(): void {
-        try {
-            // Lazy imports handled at creation time
-        } catch {
-            // Individual providers will throw if their SDK is missing
-        }
-    }
-
-    /**
-     * Register a provider by instance or by config.
-     */
     registerProvider(name: string, provider: ProviderBase): void;
+    registerProvider(name: string, cls: new (c: ProviderConfig) => ProviderBase, config: ProviderConfig): void;
     registerProvider(
         name: string,
-        providerClass: new (config: ProviderConfig) => ProviderBase,
-        config: ProviderConfig,
-    ): void;
-    registerProvider(
-        name: string,
-        providerOrClass: ProviderBase | (new (config: ProviderConfig) => ProviderBase),
+        providerOrClass: ProviderBase | (new (c: ProviderConfig) => ProviderBase),
         config?: ProviderConfig,
     ): void {
         if (config && typeof providerOrClass === "function") {
-            // It's a class + config
             const instance = new providerOrClass(config);
             this.providerRegistry.registerInstance(name, instance);
         } else {
-            // It's an instance
             this.providerRegistry.registerInstance(name, providerOrClass as ProviderBase);
         }
+        log.info(`Provider registered: ${name}`);
     }
 
-    // ── Agent Management ────────────────────────────────────────
+    // ── Agents ──────────────────────────────────────────────────
 
-    /**
-     * Create and register an agent.
-     */
-    addAgent(config: AgentConfig, AgentClass?: new (...args: ConstructorParameters<typeof Agent>) => Agent): Agent {
+    addAgent(
+        config: AgentConfig,
+        AgentClass?: new (...args: ConstructorParameters<typeof Agent>) => Agent,
+    ): Agent {
         const Cls = AgentClass ?? Agent;
         const agent = new Cls(config, this.eventBus, this.providerRegistry);
         this.agents.set(agent.agentId, agent);
+        log.info(`Agent added: ${agent.agentId} → ${config.provider}`);
         return agent;
     }
 
-    getAgent(agentId: string): Agent | undefined {
-        return this.agents.get(agentId);
-    }
-
+    getAgent(id: string): Agent | undefined { return this.agents.get(id); }
     getAgentsByName(name: string): Agent[] {
         return [...this.agents.values()].filter((a) => a.config.name === name);
     }
 
-    // ── Task Submission ─────────────────────────────────────────
+    // ── Tasks ───────────────────────────────────────────────────
 
-    /**
-     * Submit a task to the swarm.
-     * This is the primary way to send work into the system.
-     */
     async submitTask(
         content: string,
         opts?: { name?: string; targetTopic?: string; payload?: Record<string, unknown> },
@@ -116,101 +83,101 @@ export class SwarmEngine {
         return this.scheduler.submit(task);
     }
 
-    /**
-     * Publish an event to the bus directly.
-     */
     async broadcast(topic: string, payload: Record<string, unknown>): Promise<void> {
-        const event = createEvent({ topic, payload, source: "engine" });
-        await this.eventBus.publish(event);
+        await this.eventBus.publish(createEvent({ topic, payload, source: "engine" }));
     }
 
     // ── Lifecycle ───────────────────────────────────────────────
 
-    /**
-     * Start the SwarmX engine.
-     * Initializes all agents, starts the event bus, and begins scheduling.
-     */
     async start(): Promise<void> {
         if (this._running) return;
 
-        // Start event bus first
+        log.info("Starting SwarmX engine...");
+
+        // Start event bus
         await this.eventBus.start();
 
-        // Initialize all agents
-        const initTasks = [...this.agents.values()].map((agent) =>
-            agent.initialize().catch((err) => {
-                console.error(`Failed to initialize agent ${agent.agentId}:`, err);
-            }),
+        // Initialize agents
+        const results = await Promise.allSettled(
+            [...this.agents.values()].map((a) => a.initialize()),
         );
-        await Promise.allSettled(initTasks);
+        const failed = results.filter((r) => r.status === "rejected");
+        if (failed.length > 0) {
+            log.warn(`${failed.length} agent(s) failed to initialize`);
+        }
 
         // Start scheduler
         await this.scheduler.start();
 
         this._running = true;
+
+        // Graceful shutdown on signals
+        this.trapSignals();
+
+        log.info(`Engine running — ${this.agents.size} agents, ${this.providerRegistry.available.length} providers`);
     }
 
-    /**
-     * Gracefully shut down all subsystems.
-     */
     async stop(): Promise<void> {
         if (!this._running) return;
 
+        log.info("Shutting down...");
+
+        // Cleanup signal handlers
+        this.shutdownHandlers.forEach((fn) => fn());
+        this.shutdownHandlers = [];
+
         // Shutdown agents
-        const shutdownTasks = [...this.agents.values()].map((agent) =>
-            agent.shutdown().catch(() => { }),
-        );
-        await Promise.allSettled(shutdownTasks);
+        await Promise.allSettled([...this.agents.values()].map((a) => a.shutdown()));
 
-        // Stop scheduler
         await this.scheduler.stop();
-
-        // Stop event bus last
         await this.eventBus.stop();
 
         this._running = false;
+        log.info("Engine stopped");
     }
 
-    // ── Internal Event Handlers ─────────────────────────────────
+    private trapSignals(): void {
+        const handler = async () => {
+            log.info("Received shutdown signal");
+            await this.stop();
+            process.exit(0);
+        };
 
-    private async onAgentResponse(event: SwarmEvent): Promise<void> {
-        // Available for subclassing or middleware
+        const sigint = () => { handler(); };
+        const sigterm = () => { handler(); };
+
+        process.on("SIGINT", sigint);
+        process.on("SIGTERM", sigterm);
+
+        this.shutdownHandlers.push(
+            () => process.removeListener("SIGINT", sigint),
+            () => process.removeListener("SIGTERM", sigterm),
+        );
     }
 
+    // ── Internal Handlers ───────────────────────────────────────
+
+    private async onAgentResponse(_event: SwarmEvent): Promise<void> { /* extensible */ }
     private async onAgentError(event: SwarmEvent): Promise<void> {
-        const agentId = event.payload.agentId as string;
-        console.error(`[Engine] Agent error from ${agentId}:`, event.payload);
+        log.error(`Agent error: ${event.payload.agentId} — ${event.payload.error}`);
     }
 
     // ── Introspection ───────────────────────────────────────────
 
-    get allAgents(): Map<string, Agent> {
-        return new Map(this.agents);
-    }
-
-    get isRunning(): boolean {
-        return this._running;
-    }
+    get allAgents() { return new Map(this.agents); }
+    get isRunning() { return this._running; }
 
     status(): Record<string, unknown> {
-        const agentStatus: Record<string, unknown> = {};
+        const agents: Record<string, unknown> = {};
         for (const [id, agent] of this.agents) {
-            agentStatus[id] = {
-                name: agent.config.name,
-                state: agent.state,
-                provider: agent.config.provider,
-            };
+            agents[id] = { name: agent.config.name, state: agent.state, provider: agent.config.provider };
         }
-
         return {
             running: this._running,
-            agents: agentStatus,
+            agents,
             providers: this.providerRegistry.available,
             eventBus: this.eventBus.stats,
-            scheduler: {
-                pending: this.scheduler.pendingCount,
-                running: this.scheduler.runningCount,
-            },
+            scheduler: { pending: this.scheduler.pendingCount, running: this.scheduler.runningCount },
         };
     }
 }

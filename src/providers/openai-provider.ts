@@ -36,7 +36,7 @@ export class OpenAIProvider implements ProviderBase {
             if (msg.name) entry.name = msg.name;
             if (msg.toolCalls) entry.tool_calls = msg.toolCalls;
             if (msg.toolCallId) entry.tool_call_id = msg.toolCallId;
-            return entry as OpenAI.Chat.ChatCompletionMessageParam;
+            return entry as unknown as OpenAI.Chat.ChatCompletionMessageParam;
         });
     }
 

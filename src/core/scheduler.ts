@@ -1,13 +1,15 @@
 /**
- * SwarmX Task Scheduler — Async task scheduling and execution.
+ * SwarmX Task Scheduler — Async task lifecycle management.
  *
- * Manages the lifecycle of tasks within the swarm, distributing work
- * to agents via the event bus. Supports priority-based scheduling,
- * delayed execution, and task dependency chains.
+ * Distributes work to agents via the event bus. Supports priority scheduling,
+ * delayed execution, task dependencies, and automatic retries.
  */
 
 import { randomUUID } from "node:crypto";
 import { EventBus, createEvent, type SwarmEvent, EventPriority } from "./event-bus.js";
+import { createLogger } from "../utils/logger.js";
+
+const log = createLogger("Scheduler");
 
 export enum TaskStatus {
     PENDING = "pending",
@@ -18,9 +20,6 @@ export enum TaskStatus {
     CANCELLED = "cancelled",
 }
 
-/**
- * A unit of work to be executed within the swarm.
- */
 export interface Task {
     taskId: string;
     name: string;
@@ -36,11 +35,10 @@ export interface Task {
     result?: unknown;
     error?: string;
     delayMs: number;
+    maxRetries: number;
+    retryCount: number;
 }
 
-/**
- * Create a Task with defaults.
- */
 export function createTask(partial: Partial<Task> & { name: string }): Task {
     return {
         taskId: partial.taskId ?? randomUUID().slice(0, 10),
@@ -53,111 +51,67 @@ export function createTask(partial: Partial<Task> & { name: string }): Task {
         dependsOn: partial.dependsOn ?? [],
         createdAt: partial.createdAt ?? Date.now(),
         delayMs: partial.delayMs ?? 0,
+        maxRetries: partial.maxRetries ?? 0,
+        retryCount: partial.retryCount ?? 0,
     };
 }
 
-/**
- * Async task scheduler for the SwarmX engine.
- *
- * Responsibilities:
- *   - Accept and queue tasks
- *   - Resolve dependencies between tasks
- *   - Schedule tasks by publishing events
- *   - Track task status and results
- *   - Support delayed execution
- */
 export class TaskScheduler {
     private tasks = new Map<string, Task>();
     private running = false;
 
     constructor(private readonly eventBus: EventBus) {
-        // Subscribe to task lifecycle events
-        this.eventBus.subscribe(
-            "task.completed",
-            (event) => this.onTaskCompleted(event),
-            "scheduler",
-        );
-        this.eventBus.subscribe(
-            "task.failed",
-            (event) => this.onTaskFailed(event),
-            "scheduler",
-        );
+        this.eventBus.subscribe("task.completed", (e) => this.onTaskCompleted(e), "scheduler");
+        this.eventBus.subscribe("task.failed", (e) => this.onTaskFailed(e), "scheduler");
     }
 
-    // ── Task Submission ─────────────────────────────────────────
-
-    /**
-     * Submit a task for scheduling. Returns the task ID.
-     */
     async submit(task: Task): Promise<string> {
         this.tasks.set(task.taskId, task);
+        log.debug(`Task submitted: ${task.taskId} "${task.name}"`);
 
         if (this.canSchedule(task)) {
             await this.scheduleTask(task);
         }
-
         return task.taskId;
     }
 
-    /**
-     * Submit multiple tasks. Returns list of task IDs.
-     */
     async submitMany(tasks: Task[]): Promise<string[]> {
-        const ids: string[] = [];
-        for (const task of tasks) {
-            ids.push(await this.submit(task));
-        }
-        return ids;
+        return Promise.all(tasks.map((t) => this.submit(t)));
     }
 
-    // ── Task Management ─────────────────────────────────────────
-
-    getTask(taskId: string): Task | undefined {
-        return this.tasks.get(taskId);
-    }
-
-    getStatus(taskId: string): TaskStatus | undefined {
-        return this.tasks.get(taskId)?.status;
-    }
+    getTask(taskId: string): Task | undefined { return this.tasks.get(taskId); }
+    getStatus(taskId: string): TaskStatus | undefined { return this.tasks.get(taskId)?.status; }
 
     async cancel(taskId: string): Promise<boolean> {
         const task = this.tasks.get(taskId);
         if (!task) return false;
-
         if (task.status === TaskStatus.PENDING || task.status === TaskStatus.SCHEDULED) {
             task.status = TaskStatus.CANCELLED;
+            log.info(`Task cancelled: ${taskId}`);
             return true;
         }
-
         return false;
     }
 
-    // ── Scheduling Logic ────────────────────────────────────────
-
     private canSchedule(task: Task): boolean {
-        for (const depId of task.dependsOn) {
-            const dep = this.tasks.get(depId);
-            if (!dep || dep.status !== TaskStatus.COMPLETED) {
-                return false;
-            }
-        }
-        return true;
+        return task.dependsOn.every((id) => {
+            const dep = this.tasks.get(id);
+            return dep && dep.status === TaskStatus.COMPLETED;
+        });
     }
 
     private async scheduleTask(task: Task): Promise<void> {
         if (task.status === TaskStatus.CANCELLED) return;
 
-        // Handle delayed execution
         if (task.delayMs > 0) {
             task.status = TaskStatus.SCHEDULED;
-            await new Promise((resolve) => setTimeout(resolve, task.delayMs));
+            await new Promise((r) => setTimeout(r, task.delayMs));
         }
 
         task.status = TaskStatus.RUNNING;
         task.startedAt = Date.now();
 
-        // Publish the task as an event
-        const event = createEvent({
+        await this.eventBus.publish(createEvent({
             topic: task.targetTopic,
             payload: {
                 taskId: task.taskId,
@@ -169,12 +123,10 @@ export class TaskScheduler {
             source: "scheduler",
             priority: task.priority,
             metadata: { taskId: task.taskId },
-        });
+        }));
 
-        await this.eventBus.publish(event);
+        log.info(`Task dispatched: ${task.taskId} → ${task.targetTopic}`);
     }
-
-    // ── Completion Handlers ─────────────────────────────────────
 
     private async onTaskCompleted(event: SwarmEvent): Promise<void> {
         const taskId = event.payload.taskId as string;
@@ -183,8 +135,7 @@ export class TaskScheduler {
             task.status = TaskStatus.COMPLETED;
             task.completedAt = Date.now();
             task.result = event.payload.result;
-
-            // Check dependent tasks
+            log.info(`Task completed: ${taskId} (${task.completedAt - (task.startedAt ?? task.createdAt)}ms)`);
             await this.checkDependents(taskId);
         }
     }
@@ -192,11 +143,21 @@ export class TaskScheduler {
     private async onTaskFailed(event: SwarmEvent): Promise<void> {
         const taskId = event.payload.taskId as string;
         const task = this.tasks.get(taskId);
-        if (task) {
-            task.status = TaskStatus.FAILED;
-            task.completedAt = Date.now();
-            task.error = (event.payload.error as string) ?? "Unknown error";
+        if (!task) return;
+
+        // Retry logic
+        if (task.retryCount < task.maxRetries) {
+            task.retryCount++;
+            log.warn(`Retrying task ${taskId} (attempt ${task.retryCount}/${task.maxRetries})`);
+            task.status = TaskStatus.PENDING;
+            await this.scheduleTask(task);
+            return;
         }
+
+        task.status = TaskStatus.FAILED;
+        task.completedAt = Date.now();
+        task.error = (event.payload.error as string) ?? "Unknown error";
+        log.error(`Task failed: ${taskId} — ${task.error}`);
     }
 
     private async checkDependents(completedTaskId: string): Promise<void> {
@@ -211,35 +172,10 @@ export class TaskScheduler {
         }
     }
 
-    // ── Lifecycle ───────────────────────────────────────────────
+    async start(): Promise<void> { this.running = true; log.info("Scheduler started"); }
+    async stop(): Promise<void> { this.running = false; log.info("Scheduler stopped"); }
 
-    async start(): Promise<void> {
-        this.running = true;
-    }
-
-    async stop(): Promise<void> {
-        this.running = false;
-    }
-
-    // ── Introspection ───────────────────────────────────────────
-
-    get allTasks(): Map<string, Task> {
-        return new Map(this.tasks);
-    }
-
-    get pendingCount(): number {
-        let count = 0;
-        for (const t of this.tasks.values()) {
-            if (t.status === TaskStatus.PENDING) count++;
-        }
-        return count;
-    }
-
-    get runningCount(): number {
-        let count = 0;
-        for (const t of this.tasks.values()) {
-            if (t.status === TaskStatus.RUNNING) count++;
-        }
-        return count;
-    }
+    get allTasks() { return new Map(this.tasks); }
+    get pendingCount() { return [...this.tasks.values()].filter((t) => t.status === TaskStatus.PENDING).length; }
+    get runningCount() { return [...this.tasks.values()].filter((t) => t.status === TaskStatus.RUNNING).length; }
 }

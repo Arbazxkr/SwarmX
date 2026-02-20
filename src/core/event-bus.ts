@@ -1,16 +1,15 @@
 /**
  * SwarmX Event Bus — Central non-blocking event routing system.
  *
- * Inspired by the Gateway pattern from OpenClaw, adapted for multi-agent
- * orchestration. The EventBus acts as the central nervous system: agents
- * subscribe to event topics, emit events, and the bus routes them without
- * requiring direct agent-to-agent coupling.
- *
- * Architecture pattern adapted from OpenClaw's WebSocket control plane,
- * reimplemented as a pure TypeScript async event system.
+ * The EventBus is the nervous system of every swarm. Agents subscribe
+ * to topics, emit events, and the bus routes them. No direct coupling
+ * between agents — everything flows through events.
  */
 
 import { randomUUID } from "node:crypto";
+import { createLogger } from "../utils/logger.js";
+
+const log = createLogger("EventBus");
 
 export enum EventPriority {
     LOW = 0,
@@ -20,19 +19,12 @@ export enum EventPriority {
 }
 
 export interface SwarmEvent {
-    /** The event topic/channel (e.g. "task.created", "agent.response"). */
     topic: string;
-    /** Arbitrary data attached to the event. */
     payload: Record<string, unknown>;
-    /** Identifier of the event producer (agent ID, "engine", "cli", etc.). */
     source: string;
-    /** Unique identifier for tracing and deduplication. */
     eventId: string;
-    /** Unix timestamp of event creation. */
     timestamp: number;
-    /** Processing priority (higher = processed first). */
     priority: EventPriority;
-    /** Optional metadata for routing, tracing, and filtering. */
     metadata: Record<string, unknown>;
 }
 
@@ -45,9 +37,6 @@ interface Subscription {
     priority: EventPriority;
 }
 
-/**
- * Create a new SwarmEvent with defaults filled in.
- */
 export function createEvent(partial: Partial<SwarmEvent> & { topic: string }): SwarmEvent {
     return {
         topic: partial.topic,
@@ -61,15 +50,12 @@ export function createEvent(partial: Partial<SwarmEvent> & { topic: string }): S
 }
 
 /**
- * Central async event bus for SwarmX agent coordination.
+ * Central async event bus for SwarmX.
  *
- * The bus supports topic-based pub/sub with wildcard matching:
- *   - "task.created"      → exact match
- *   - "task.*"            → matches any subtopic under "task"
- *   - "*"                 → matches everything (global listener)
- *
- * All event dispatch is non-blocking. Handlers execute as microtasks
- * and exceptions in individual handlers do not stop other handlers.
+ * Supports topic routing with wildcards:
+ *   "task.created"   → exact match
+ *   "task.*"         → matches task.created, task.completed, etc.
+ *   "*"              → global listener
  */
 export class EventBus {
     private subscriptions = new Map<string, Subscription[]>();
@@ -78,17 +64,16 @@ export class EventBus {
     private processing = false;
     private running = false;
     private eventHistory: SwarmEvent[] = [];
-    private maxHistory = 1000;
+    private maxHistory: number;
     private intervalId: ReturnType<typeof setInterval> | null = null;
-
     private _stats = { published: 0, dispatched: 0, errors: 0 };
 
-    // ── Subscription Management ─────────────────────────────────
+    constructor(opts?: { maxHistory?: number }) {
+        this.maxHistory = opts?.maxHistory ?? 1000;
+    }
 
-    /**
-     * Subscribe a handler to a topic pattern.
-     * Returns the subscriberId (generated if not provided).
-     */
+    // ── Subscriptions ───────────────────────────────────────────
+
     subscribe(
         topic: string,
         handler: EventHandler,
@@ -96,13 +81,7 @@ export class EventBus {
         priority: EventPriority = EventPriority.NORMAL,
     ): string {
         const id = subscriberId ?? randomUUID().slice(0, 8);
-
-        const sub: Subscription = {
-            handler,
-            subscriberId: id,
-            topicPattern: topic,
-            priority,
-        };
+        const sub: Subscription = { handler, subscriberId: id, topicPattern: topic, priority };
 
         if (topic === "*") {
             this.globalSubscriptions.push(sub);
@@ -112,13 +91,10 @@ export class EventBus {
             this.subscriptions.set(topic, existing);
         }
 
+        log.debug(`Subscribed ${id} → ${topic}`);
         return id;
     }
 
-    /**
-     * Remove all subscriptions for a given subscriber.
-     * Returns count of removed subscriptions.
-     */
     unsubscribe(subscriberId: string): number {
         let removed = 0;
 
@@ -126,12 +102,8 @@ export class EventBus {
             const before = subs.length;
             const filtered = subs.filter((s) => s.subscriberId !== subscriberId);
             removed += before - filtered.length;
-
-            if (filtered.length === 0) {
-                this.subscriptions.delete(topic);
-            } else {
-                this.subscriptions.set(topic, filtered);
-            }
+            if (filtered.length === 0) this.subscriptions.delete(topic);
+            else this.subscriptions.set(topic, filtered);
         }
 
         const beforeGlobal = this.globalSubscriptions.length;
@@ -140,73 +112,57 @@ export class EventBus {
         );
         removed += beforeGlobal - this.globalSubscriptions.length;
 
+        if (removed > 0) log.debug(`Unsubscribed ${subscriberId} (${removed} handlers)`);
         return removed;
     }
 
     // ── Publishing ──────────────────────────────────────────────
 
-    /**
-     * Enqueue an event for async dispatch.
-     */
     async publish(event: SwarmEvent): Promise<void> {
         this.eventQueue.push(event);
         this._stats.published++;
+        log.debug(`Published [${event.eventId}] ${event.topic} from ${event.source}`);
 
-        // Trigger processing if running
         if (this.running && !this.processing) {
             await this.processQueue();
         }
     }
 
-    /**
-     * Publish without awaiting (fire-and-forget).
-     */
     publishSync(event: SwarmEvent): void {
         this.eventQueue.push(event);
         this._stats.published++;
-
         if (this.running && !this.processing) {
             this.processQueue().catch(() => { });
         }
     }
 
-    // ── Dispatch Loop ───────────────────────────────────────────
+    // ── Dispatch ────────────────────────────────────────────────
 
-    /**
-     * Start the event dispatch loop.
-     */
     async start(): Promise<void> {
         if (this.running) return;
         this.running = true;
-
-        // Periodic check for queued events
         this.intervalId = setInterval(() => {
             if (!this.processing && this.eventQueue.length > 0) {
                 this.processQueue().catch(() => { });
             }
         }, 50);
+        log.info("Event bus started");
     }
 
-    /**
-     * Gracefully stop the event dispatch loop, processing remaining events.
-     */
     async stop(): Promise<void> {
         if (!this.running) return;
         this.running = false;
-
         if (this.intervalId) {
             clearInterval(this.intervalId);
             this.intervalId = null;
         }
-
-        // Drain remaining events
         await this.processQueue();
+        log.info(`Event bus stopped — ${this._stats.published} published, ${this._stats.dispatched} dispatched, ${this._stats.errors} errors`);
     }
 
     private async processQueue(): Promise<void> {
         if (this.processing) return;
         this.processing = true;
-
         try {
             while (this.eventQueue.length > 0) {
                 const event = this.eventQueue.shift()!;
@@ -218,20 +174,18 @@ export class EventBus {
     }
 
     private async dispatchEvent(event: SwarmEvent): Promise<void> {
-        // Record history
         this.eventHistory.push(event);
         if (this.eventHistory.length > this.maxHistory) {
             this.eventHistory = this.eventHistory.slice(-this.maxHistory);
         }
 
-        // Collect matching handlers
         const handlers: Subscription[] = [];
 
         // Exact topic match
         const exact = this.subscriptions.get(event.topic);
         if (exact) handlers.push(...exact);
 
-        // Wildcard match: "task.*" matches "task.created", "task.completed", etc.
+        // Wildcard match
         for (const [pattern, subs] of this.subscriptions.entries()) {
             if (pattern.endsWith(".*")) {
                 const prefix = pattern.slice(0, -2);
@@ -241,49 +195,37 @@ export class EventBus {
             }
         }
 
-        // Global listeners
+        // Global
         handlers.push(...this.globalSubscriptions);
 
-        // Sort by priority (highest first)
+        // Priority sort
         handlers.sort((a, b) => b.priority - a.priority);
 
-        // Execute handlers concurrently
         if (handlers.length > 0) {
-            const tasks = handlers.map((sub) => this.safeCall(sub.handler, event, sub.subscriberId));
-            await Promise.allSettled(tasks);
+            await Promise.allSettled(
+                handlers.map((sub) => this.safeCall(sub.handler, event, sub.subscriberId)),
+            );
         }
 
         this._stats.dispatched++;
     }
 
-    private async safeCall(
-        handler: EventHandler,
-        event: SwarmEvent,
-        subscriberId: string,
-    ): Promise<void> {
+    private async safeCall(handler: EventHandler, event: SwarmEvent, subscriberId: string): Promise<void> {
         try {
             await handler(event);
         } catch (err) {
-            console.error(`[EventBus] Handler error in subscriber ${subscriberId} for ${event.topic}:`, err);
+            log.error(`Handler error [${subscriberId}] on ${event.topic}: ${err}`);
             this._stats.errors++;
         }
     }
 
     // ── Introspection ───────────────────────────────────────────
 
-    get stats(): { published: number; dispatched: number; errors: number } {
-        return { ...this._stats };
-    }
-
+    get stats() { return { ...this._stats }; }
     get subscriptionCount(): number {
-        let count = this.globalSubscriptions.length;
-        for (const subs of this.subscriptions.values()) {
-            count += subs.length;
-        }
-        return count;
+        let c = this.globalSubscriptions.length;
+        for (const s of this.subscriptions.values()) c += s.length;
+        return c;
     }
-
-    recentEvents(limit = 20): SwarmEvent[] {
-        return this.eventHistory.slice(-limit);
-    }
+    recentEvents(limit = 20): SwarmEvent[] { return this.eventHistory.slice(-limit); }
 }

@@ -76,20 +76,32 @@ graph TB
 
 ## 🚀 3. Quick Start
 
+### One-line install
+
 ```bash
-# Clone & install
+curl -fsSL https://raw.githubusercontent.com/Arbazxkr/SwarmX/main/install.sh | bash
+```
+
+### Or install manually
+
+```bash
 git clone https://github.com/Arbazxkr/SwarmX.git
 cd SwarmX
-npm install
+npm install && npm run build
+npm link
+```
 
-# Initialize a swarm project
-npx tsx src/cli/main.ts init --name my-swarm --provider openai
+### Get started
 
-# Set your API key
-export OPENAI_API_KEY=your-key-here
+```bash
+# Interactive setup wizard
+swarmx onboard
 
-# Run interactively
-npx tsx src/cli/main.ts run my-swarm.yaml --interactive
+# Or create a project manually
+swarmx init --name my-swarm --provider openai
+
+# Run your swarm
+cd my-swarm && swarmx run swarm.yaml --interactive
 ```
 
 ### CLI Commands
@@ -100,7 +112,9 @@ swarmx run <config.yaml> -i        # Interactive mode
 swarmx run <config.yaml> -t "..."  # Run with a task
 swarmx validate <config.yaml>      # Validate config
 swarmx status <config.yaml>        # Show swarm info
+swarmx health <config.yaml>        # Check provider connectivity
 swarmx init --name <name>          # Scaffold a new project
+swarmx onboard                     # Interactive setup wizard
 ```
 
 ---
@@ -178,14 +192,17 @@ SwarmX/
 │   │   ├── google-provider.ts    # Google/Gemini adapter
 │   │   └── xai-provider.ts       # xAI/Grok adapter
 │   ├── cli/
-│   │   └── main.ts               # CLI entry point
+│   │   └── main.ts               # CLI (run, init, onboard, health)
 │   └── utils/
-│       └── config.ts             # YAML config loader
+│       ├── config.ts             # YAML config loader + .env support
+│       ├── logger.ts             # Structured logging with levels
+│       └── retry.ts              # Exponential backoff for API calls
 ├── tests/                        # Vitest test suite
 ├── examples/                     # YAML + TypeScript examples
+├── install.sh                    # One-line installer
 ├── package.json
 ├── tsconfig.json
-└── LICENSE                       # MIT (with OpenClaw attribution)
+└── LICENSE                       # MIT
 ```
 
 ---
@@ -212,18 +229,6 @@ SwarmX/
 
 ---
 
-## 🧠 Attribution
-
-SwarmX draws architectural inspiration from the [OpenClaw](https://github.com/openclaw/openclaw) project (MIT License):
-
-- **Gateway → Engine** — Central control plane pattern
-- **Channel adapters → Provider adapters** — Pluggable integration layer
-- **Multi-agent routing** — Isolated agents with declarative bindings
-- **Event-driven architecture** — WebSocket events → async event bus
-- **Config-driven setup** — Declarative YAML definitions
-
----
-
 <div align="center">
-  <strong>MIT License</strong> · Built with TypeScript · Inspired by OpenClaw
+  <strong>MIT License</strong> · Built with TypeScript
 </div>
