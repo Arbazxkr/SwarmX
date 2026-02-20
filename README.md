@@ -1,9 +1,10 @@
-# 🐝 SwarmX
+# ⚛ SwarmX
 
 **A model-agnostic, async, event-driven multi-agent orchestration framework for developers.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6+-blue.svg)](https://www.typescriptlang.org/)
+[![Node.js 20+](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
 
 ---
 
@@ -16,6 +17,7 @@ SwarmX is a lightweight framework for orchestrating multiple AI agents that comm
 - **Local-first** — Runs entirely on your machine, no cloud orchestration required
 - **CLI-first** — Full-featured CLI for managing swarms from the terminal
 - **Config-driven** — Define your entire swarm in a single YAML file
+- **TypeScript-first** — Written in TypeScript with full type safety
 - **Developer-focused** — Clean APIs, comprehensive types, and minimal dependencies
 
 ## Architecture
@@ -67,21 +69,24 @@ SwarmX is a lightweight framework for orchestrating multiple AI agents that comm
 git clone https://github.com/swarmx/swarmx.git
 cd swarmx
 
-# Install in development mode
-pip install -e ".[dev]"
+# Install dependencies
+npm install
+
+# Build
+npm run build
 ```
 
 ### Create a Swarm
 
 ```bash
 # Initialize a new swarm project
-swarmx init --name my-swarm --provider openai
+npx tsx src/cli/main.ts init --name my-swarm --provider openai
 
 # Set your API key
 export OPENAI_API_KEY=your-key-here
 
 # Run the swarm
-swarmx run my-swarm.yaml --interactive
+npx tsx src/cli/main.ts run my-swarm.yaml --interactive
 ```
 
 ### CLI Commands
@@ -144,54 +149,50 @@ api_key: ${OPENAI_API_KEY}
 
 ## Programmatic API
 
-```python
-import asyncio
-from swarmx import Agent, AgentConfig, SwarmEngine
-from swarmx.core.provider import ProviderConfig
+```typescript
+import { SwarmEngine } from "swarmx";
+import { OpenAIProvider } from "swarmx/providers";
 
-async def main():
-    engine = SwarmEngine()
+const engine = new SwarmEngine();
 
-    # Register a provider
-    engine.register_provider("openai", config=ProviderConfig(
-        api_key="your-key",
-        model="gpt-4o",
-    ))
+// Register a provider
+const openai = new OpenAIProvider({ apiKey: "your-key", model: "gpt-4o" });
+engine.registerProvider("openai", openai);
 
-    # Add agents
-    engine.add_agent(AgentConfig(
-        name="assistant",
-        provider="openai",
-        system_prompt="You are a helpful assistant.",
-        subscriptions=["task.created"],
-    ))
+// Add agents
+engine.addAgent({
+  name: "assistant",
+  provider: "openai",
+  systemPrompt: "You are a helpful assistant.",
+  subscriptions: ["task.created"],
+});
 
-    # Run
-    await engine.start()
-    await engine.submit_task("What is the meaning of life?")
-    await asyncio.sleep(5)
-    await engine.stop()
-
-asyncio.run(main())
+// Run
+await engine.start();
+await engine.submitTask("What is the meaning of life?");
+await new Promise((r) => setTimeout(r, 5000));
+await engine.stop();
 ```
 
 ### Custom Agents
 
-```python
-from swarmx import Agent
-from swarmx.core.event_bus import Event
+```typescript
+import { Agent, type AgentConfig } from "swarmx";
+import { type SwarmEvent } from "swarmx";
 
-class MyAgent(Agent):
-    async def on_event(self, event: Event) -> None:
-        # Custom event handling logic
-        if event.topic == "analysis.request":
-            result = await self.think(event.payload["content"])
-            await self.emit("analysis.complete", {
-                "result": result.message.content,
-            })
+class MyAgent extends Agent {
+  async onEvent(event: SwarmEvent): Promise<void> {
+    if (event.topic === "analysis.request") {
+      const result = await this.think(event.payload.content as string);
+      await this.emit("analysis.complete", {
+        result: result?.message.content,
+      });
+    }
+  }
+}
 
-# Use in engine
-engine.add_agent(config, agent_class=MyAgent)
+// Use in engine
+engine.addAgent(config, MyAgent);
 ```
 
 ## Supported Providers
@@ -199,8 +200,8 @@ engine.add_agent(config, agent_class=MyAgent)
 | Provider | Package | Models |
 |----------|---------|--------|
 | **OpenAI** | `openai` | GPT-4o, GPT-4, GPT-3.5-turbo |
-| **Anthropic** | `anthropic` | Claude 3.5 Sonnet, Claude 3 Opus/Haiku |
-| **Google** | `google-genai` | Gemini 2.0 Flash, Gemini 1.5 Pro |
+| **Anthropic** | `@anthropic-ai/sdk` | Claude 3.5 Sonnet, Claude 3 Opus/Haiku |
+| **Google** | `@google/genai` | Gemini 2.0 Flash, Gemini 1.5 Pro |
 | **xAI** | `openai` (compatible) | Grok-2, Grok-1 |
 
 ## Event System
@@ -220,34 +221,35 @@ Events are processed asynchronously with error isolation — a failing handler n
 
 ```
 SwarmX/
-├── swarmx/
-│   ├── __init__.py              # Package root & public API
+├── src/
+│   ├── index.ts                 # Package root & public API
 │   ├── core/
-│   │   ├── agent.py             # Agent base class & lifecycle
-│   │   ├── engine.py            # Core orchestration engine
-│   │   ├── event_bus.py         # Async event bus with pub/sub
-│   │   ├── provider.py          # Provider abstraction layer
-│   │   └── scheduler.py         # Task scheduling & dependencies
+│   │   ├── agent.ts             # Agent base class & lifecycle
+│   │   ├── engine.ts            # Core orchestration engine
+│   │   ├── event-bus.ts         # Async event bus with pub/sub
+│   │   ├── provider.ts          # Provider abstraction layer
+│   │   └── scheduler.ts         # Task scheduling & dependencies
 │   ├── providers/
-│   │   ├── openai_provider.py   # OpenAI adapter
-│   │   ├── anthropic_provider.py # Anthropic/Claude adapter
-│   │   ├── google_provider.py   # Google/Gemini adapter
-│   │   └── xai_provider.py      # xAI/Grok adapter
+│   │   ├── index.ts             # Provider barrel export
+│   │   ├── openai-provider.ts   # OpenAI adapter
+│   │   ├── anthropic-provider.ts # Anthropic/Claude adapter
+│   │   ├── google-provider.ts   # Google/Gemini adapter
+│   │   └── xai-provider.ts      # xAI/Grok adapter
 │   ├── cli/
-│   │   └── main.py              # CLI entry point (Click + Rich)
+│   │   └── main.ts              # CLI entry point (Commander + chalk)
 │   └── utils/
-│       ├── config.py            # YAML config loader
-│       └── logging.py           # Rich logging setup
+│       └── config.ts            # YAML config loader
 ├── tests/
-│   ├── test_event_bus.py        # Event bus tests
-│   ├── test_agent_engine.py     # Agent & engine tests
-│   ├── test_scheduler.py        # Scheduler tests
-│   └── test_config.py           # Config loader tests
+│   ├── event-bus.test.ts        # Event bus tests
+│   ├── agent-engine.test.ts     # Agent & engine tests
+│   └── scheduler.test.ts        # Scheduler tests
 ├── examples/
 │   ├── research_team.yaml       # Multi-agent research team
 │   ├── multi_provider.yaml      # Multi-provider swarm
-│   └── programmatic_usage.py    # Programmatic API example
-├── pyproject.toml               # Build config & dependencies
+│   └── programmatic-usage.ts    # Programmatic API example
+├── package.json                 # Dependencies & scripts
+├── tsconfig.json                # TypeScript config
+├── vitest.config.ts             # Test config
 ├── LICENSE                      # MIT license with attribution
 ├── README.md                    # This file
 └── .gitignore
@@ -256,20 +258,23 @@ SwarmX/
 ## Development
 
 ```bash
-# Install dev dependencies
-pip install -e ".[dev]"
+# Install dependencies
+npm install
+
+# Build
+npm run build
 
 # Run tests
-pytest
+npm test
 
-# Run with verbose output
-pytest -v
-
-# Lint
-ruff check .
+# Run tests in watch mode
+npm run test:watch
 
 # Type check
-mypy swarmx/
+npm run typecheck
+
+# Run CLI in dev mode
+npx tsx src/cli/main.ts --help
 ```
 
 ## Attribution
@@ -281,8 +286,7 @@ SwarmX draws architectural inspiration from the [OpenClaw](https://github.com/op
 - **Multi-agent routing** — Isolated agents with declarative bindings
 - **Event-driven architecture** — WebSocket event patterns → async event bus
 - **Config-driven setup** — Declarative YAML-based definitions
-
-All adapted code has been reimplemented in Python for the multi-agent orchestration domain. See [LICENSE](LICENSE) for full details.
+- **TypeScript-first** — Same language choice as the original
 
 ## License
 
