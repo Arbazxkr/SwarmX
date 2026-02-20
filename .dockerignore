@@ -1,0 +1,13 @@
+# SwarmX Docker Ignore
+node_modules/
+dist/
+.swarmx/
+.git/
+.github/
+*.md
+!README.md
+.env
+.env.*
+tests/
+examples/
+skills/

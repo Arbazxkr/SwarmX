@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  swarmx:
+    build: .
+    container_name: swarmx
+    restart: unless-stopped
+    ports:
+      - "18789:18789"  # Gateway WebSocket
+      - "3737:3737"    # WebChat UI
+      - "3838:3838"    # Dashboard
+      - "9876:9876"    # Webhooks
+    volumes:
+      - ./swarm.yaml:/app/swarm.yaml:ro
+      - ./.env:/app/.env:ro
+      - swarmx-data:/app/.swarmx
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - SWARMX_LOG_LEVEL=info
+    command: ["gateway", "swarm.yaml", "--port", "18789"]
+
+volumes:
+  swarmx-data:

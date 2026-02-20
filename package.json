@@ -1,6 +1,6 @@
 {
     "name": "swarmx",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "A model-agnostic, async, event-driven multi-agent orchestration framework",
     "type": "module",
     "main": "./dist/index.js",

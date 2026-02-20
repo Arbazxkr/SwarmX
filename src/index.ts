@@ -39,5 +39,10 @@ export { TelegramChannel, type TelegramConfig } from "./channels/telegram.js";
 export { DiscordChannel, type DiscordConfig } from "./channels/discord.js";
 export { SlackChannel, type SlackConfig } from "./channels/slack.js";
 export { WebChatChannel, type WebChatConfig } from "./channels/webchat.js";
+// Plugins
+export { SkillRegistry, type SkillManifest, type LoadedSkill } from "./plugins/skills.js";
+export { BrowserController, type BrowserConfig } from "./plugins/browser.js";
+export { CronScheduler, WebhookServer, type WebhookConfig } from "./plugins/automation.js";
+export { Dashboard, type DashboardConfig } from "./plugins/dashboard.js";
 
-export const VERSION = "0.2.0";
+export const VERSION = "0.3.0";
