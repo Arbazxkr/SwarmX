@@ -31,6 +31,7 @@ export { SkillTrustManager, InputSanitizer, RateLimiter, ToolGuard, Sandbox } fr
 export { MediaPipeline, type MediaFile, type MediaConfig } from "./core/media.js";
 export { VoiceEngine, type VoiceConfig, type VoiceProfile } from "./core/voice.js";
 export { MessageRouter, type RouteRule, type ActivationMode } from "./core/router.js";
+export { CanvasManager, type CanvasState, type CanvasComponent } from "./core/canvas.js";
 
 // Utils
 export { loadConfig, buildEngineFromConfig, loadAndBuild } from "./utils/config.js";
@@ -56,4 +57,4 @@ export { BrowserController, type BrowserConfig } from "./plugins/browser.js";
 export { CronScheduler, WebhookServer, type WebhookConfig } from "./plugins/automation.js";
 export { Dashboard, type DashboardConfig } from "./plugins/dashboard.js";
 
-export const VERSION = "0.4.0";
+export const VERSION = "0.5.0";
