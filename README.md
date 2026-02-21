@@ -27,53 +27,70 @@ groklets onboard
 
 ## 🏗 Architecture
 
+```mermaid
+graph TD
+    classDef channel fill:#25D366,stroke:#fff,stroke-width:2px,color:#fff
+    classDef core fill:#3B82F6,stroke:#fff,stroke-width:2px,color:#fff
+    classDef infra fill:#8B5CF6,stroke:#fff,stroke-width:2px,color:#fff
+    classDef app fill:#F59E0B,stroke:#fff,stroke-width:2px,color:#000
+
+    WA[WhatsApp]:::channel --> GW
+    TG[Telegram]:::channel --> GW
+    DC[Discord]:::channel --> GW
+    SL[Slack]:::channel --> GW
+    SG[Signal]:::channel --> GW
+    IM[iMessage]:::channel --> GW
+    GC[Google Chat]:::channel --> GW
+    TM[Teams]:::channel --> GW
+    MX[Matrix]:::channel --> GW
+    WC[WebChat]:::channel --> GW
+
+    GW[Gateway<br/>ws://127.0.0.1:18789]:::core
+
+    GW --> EB[Event Bus]:::core
+    EB --> A1[Agent 1]:::core
+    EB --> A2[Agent 2]:::core
+    EB --> AN[Agent N]:::core
+
+    A1 --> PR[Providers<br/>OpenAI · Anthropic · Google · xAI]:::core
+    A1 --> TL[Tools<br/>Browser · Cron · Skills]:::core
+    A1 --> SS[Sessions<br/>Persist + Context]:::core
+
+    EB --> MEM[Memory<br/>TF-IDF + Facts]:::infra
+    EB --> SEC[Security<br/>Sandbox + Rate Limit]:::infra
+    EB --> MED[Media<br/>Whisper + Vision]:::infra
+    EB --> VOI[Voice<br/>ElevenLabs + STT]:::infra
+    EB --> CAN[Canvas A2UI]:::infra
+    EB --> RTR[Router<br/>Groups + Modes]:::infra
+
+    GW --> CLI[CLI]:::app
+    GW --> DASH[Dashboard]:::app
+    GW --> MAC[macOS App]:::app
+    GW --> IOS[iOS Node]:::app
+    GW --> AND[Android Node]:::app
 ```
-WhatsApp / Telegram / Slack / Discord / Signal / iMessage
-Google Chat / Teams / Matrix / WebChat
-         │
-         ▼
-┌───────────────────────────────────┐
-│            Gateway                │
-│        (control plane)            │
-│     ws://127.0.0.1:18789          │
-└──────────────┬────────────────────┘
-               │
-    ┌──────────┼──────────┐
-    │          │          │
-  Agent 1   Agent 2   Agent N
-    │          │          │
-    └──────────┼──────────┘
-               │
-         ┌─────┴─────┐
-         │ Event Bus  │
-         └─────┬─────┘
-               │
-    ┌──────────┼──────────┐
-    │          │          │
- Providers   Tools    Sessions
- (4 LLMs)  (browser,  (persist)
-           cron,
-           skills)
-               │
-    ┌──────────┼──────────┐
-    │          │          │
-  Memory   Security    Media
- (TF-IDF)  (sandbox)  (Whisper)
-               │
-    ┌──────────┼──────────┐
-    │          │          │
-  Voice     Canvas     Router
-(ElevenLabs) (A2UI)   (groups)
-               │
-    ┌──────────┼──────────┐
-    │          │          │
-  CLI      Dashboard   Docker
-(9 cmds)   (web UI)
-               │
-    ┌──────────┼──────────┐
-    │          │          │
-  macOS      iOS      Android
-  (app)    (node)     (node)
+
+### 📱 Message Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Channel as Channel<br/>(WhatsApp/TG/etc)
+    participant Gateway
+    participant Router
+    participant Agent
+    participant LLM as LLM Provider
+
+    User->>Channel: Send message
+    Channel->>Gateway: ChannelMessage
+    Gateway->>Router: Route (activation check)
+    Router->>Agent: Queue + dispatch
+    Agent->>LLM: Complete (with tools)
+    LLM-->>Agent: Response + tool calls
+    Agent->>Agent: Execute tools (loop)
+    Agent-->>Gateway: agent.response event
+    Gateway-->>Channel: Reply
+    Channel-->>User: Response
 ```
 
 ---
