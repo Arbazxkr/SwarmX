@@ -16,7 +16,7 @@ import {
     pipeline,
     fanOutFanIn,
     type AgentExecutor,
-} from "groklets";
+} from "../src/index.js";
 
 // ── Setup ──────────────────────────────────────────────────────
 
@@ -25,12 +25,11 @@ const engine = new SwarmEngine();
 // Register providers — mix models freely
 // (In production, use swarm.yaml config instead)
 
-import { OpenAIProvider } from "groklets/providers";
+// import { OpenAIProvider } from "../src/providers/index.js";
 // engine.registerProvider("gpt4", new OpenAIProvider({ apiKey: process.env.OPENAI_API_KEY, model: "gpt-4o" }));
-// engine.registerProvider("claude", new AnthropicProvider({ apiKey: process.env.ANTHROPIC_API_KEY, model: "claude-sonnet-4-20250514" }));
 
 // For this example, we use a mock executor
-const mockExecutor: AgentExecutor = async (agent, input) => {
+const mockExecutor: AgentExecutor = async (agent: string, input: string) => {
     console.log(`\n  [${agent}] received: "${input.slice(0, 60)}..."`);
     // In production, this calls engine.agentToAgent() or provider.complete()
     return `[${agent} response] Processed: ${input.slice(0, 40)}`;
