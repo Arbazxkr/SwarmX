@@ -33,8 +33,14 @@ jobs:
         run: npm run lint
         continue-on-error: true
 
+      - name: Debug info
+        run: |
+          node --version
+          npm --version
+          ls -la node_modules/.bin/vitest || echo "vitest not in bin"
+
       - name: Run tests
-        run: npm test
+        run: npx vitest run --reporter=verbose 2>&1 || (echo "Tests failed with exit code $?" && exit 1)
 
       - name: Build
         run: npm run build
