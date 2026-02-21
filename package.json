@@ -1,6 +1,6 @@
 {
     "name": "groklets",
-    "version": "0.6.0",
+    "version": "0.7.0",
     "description": "Groklets — A model-agnostic, async, event-driven multi-agent orchestration framework",
     "type": "module",
     "main": "./dist/index.js",

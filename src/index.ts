@@ -43,6 +43,19 @@ export {
   extractLinksFromMessage, runLinkUnderstanding, formatLinkUnderstandingBody,
   type LinkConfig, type LinkResult, type LinkUnderstandingResult,
 } from "./link-understanding/index.js";
+export {
+  GuardrailRunner, maxLengthGuardrail, blockedPatternsGuardrail,
+  requiredContentGuardrail, piiGuardrail, jsonOutputGuardrail, toxicityGuardrail,
+  type GuardrailConfig, type GuardrailsConfig, type GuardrailResult, type GuardrailReport,
+} from "./core/guardrails.js";
+export {
+  compactMessages,
+  type CompactionConfig, type CompactionResult,
+} from "./core/compaction.js";
+export {
+  Tracer, globalTracer,
+  type Span, type Trace, type TracingConfig,
+} from "./core/tracing.js";
 
 // Utils
 export { loadConfig, buildEngineFromConfig, loadAndBuild } from "./utils/config.js";
@@ -68,4 +81,4 @@ export { BrowserController, type BrowserConfig } from "./plugins/browser.js";
 export { CronScheduler, WebhookServer, type WebhookConfig } from "./plugins/automation.js";
 export { Dashboard, type DashboardConfig } from "./plugins/dashboard.js";
 
-export const VERSION = "0.6.0";
+export const VERSION = "0.7.0";
