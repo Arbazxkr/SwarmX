@@ -6,6 +6,8 @@ dist/
 
 # SwarmX data
 .swarmx/
+# OpenClaw reference (for comparison only)
+.openclaw-ref/
 
 # IDE
 .idea/

@@ -26,23 +26,34 @@ export { SessionStore, type Session, type SessionStoreConfig } from "./core/sess
 export { ContextManager, estimateTokens, estimateMessagesTokens, pruneSliding, type ContextConfig } from "./core/context.js";
 export { UsageTracker } from "./core/usage.js";
 export { Gateway, type GatewayConfig } from "./core/gateway.js";
+export { MemoryStore, type MemoryEntry, type MemoryConfig } from "./core/memory.js";
+export { SkillTrustManager, InputSanitizer, RateLimiter, ToolGuard, Sandbox } from "./core/security.js";
+export { MediaPipeline, type MediaFile, type MediaConfig } from "./core/media.js";
+export { VoiceEngine, type VoiceConfig, type VoiceProfile } from "./core/voice.js";
+export { MessageRouter, type RouteRule, type ActivationMode } from "./core/router.js";
 
 // Utils
 export { loadConfig, buildEngineFromConfig, loadAndBuild } from "./utils/config.js";
 export { Logger, createLogger } from "./utils/logger.js";
 export { withRetry, type RetryOptions } from "./utils/retry.js";
 
-// Channels
+// Channels (10 platforms)
 export { ChannelAdapter, type ChannelConfig, type ChannelMessage } from "./channels/adapter.js";
 export { WhatsAppChannel, type WhatsAppConfig } from "./channels/whatsapp.js";
 export { TelegramChannel, type TelegramConfig } from "./channels/telegram.js";
 export { DiscordChannel, type DiscordConfig } from "./channels/discord.js";
 export { SlackChannel, type SlackConfig } from "./channels/slack.js";
 export { WebChatChannel, type WebChatConfig } from "./channels/webchat.js";
+export { SignalChannel, type SignalConfig } from "./channels/signal.js";
+export { IMessageChannel, type IMessageConfig } from "./channels/imessage.js";
+export { GoogleChatChannel, type GoogleChatConfig } from "./channels/googlechat.js";
+export { TeamsChannel, type TeamsConfig } from "./channels/teams.js";
+export { MatrixChannel, type MatrixConfig } from "./channels/matrix.js";
+
 // Plugins
 export { SkillRegistry, type SkillManifest, type LoadedSkill } from "./plugins/skills.js";
 export { BrowserController, type BrowserConfig } from "./plugins/browser.js";
 export { CronScheduler, WebhookServer, type WebhookConfig } from "./plugins/automation.js";
 export { Dashboard, type DashboardConfig } from "./plugins/dashboard.js";
 
-export const VERSION = "0.3.0";
+export const VERSION = "0.4.0";
