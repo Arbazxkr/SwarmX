@@ -26,12 +26,6 @@ interface SwarmConfigFile {
     };
 }
 
-const PROVIDER_MAP: Record<string, new (config: ProviderConfig) => any> = {
-    openai: OpenAIProvider,
-    anthropic: AnthropicProvider,
-    google: GoogleProvider,
-    xai: XAIProvider,
-};
 
 /**
  * Resolve ${ENV_VAR} references.
@@ -75,12 +69,23 @@ export function loadConfig(path: string): SwarmConfigFile {
 
 /**
  * Build a SwarmEngine from parsed config.
+ *
+ * Built-in provider types: openai, anthropic, google, xai.
+ * Any unknown type with a base_url auto-falls back to OpenAI-compatible mode.
+ * Users can also register custom providers before calling this.
  */
 export function buildEngineFromConfig(config: SwarmConfigFile): SwarmEngine {
     const engine = new SwarmEngine();
     const swarm = config.swarm;
 
-    // Providers
+    // Register built-in provider types
+    engine.providerRegistry.registerClass("openai", OpenAIProvider);
+    engine.providerRegistry.registerClass("anthropic", AnthropicProvider);
+    engine.providerRegistry.registerClass("google", GoogleProvider);
+    engine.providerRegistry.registerClass("xai", XAIProvider);
+
+    // Create providers from config — any type works, unknown types with
+    // base_url fallback to OpenAI-compatible (Ollama, Groq, Together, etc.)
     for (const [name, def] of Object.entries(swarm.providers ?? {})) {
         const type = (def.type as string) ?? name;
         const providerConfig: ProviderConfig = {
@@ -93,11 +98,10 @@ export function buildEngineFromConfig(config: SwarmConfigFile): SwarmEngine {
             maxRetries: (def.max_retries as number) ?? 3,
         };
 
-        const Cls = PROVIDER_MAP[type];
-        if (Cls) {
-            engine.registerProvider(name, new Cls(providerConfig));
-        } else {
-            log.warn(`Unknown provider type: ${type}`);
+        try {
+            engine.providerRegistry.create(type, name, providerConfig);
+        } catch (err) {
+            log.warn(`Provider '${name}': ${(err as Error).message}`);
         }
     }
 
