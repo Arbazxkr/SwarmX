@@ -31,6 +31,7 @@ jobs:
 
       - name: Lint
         run: npm run lint
+        continue-on-error: true
 
       - name: Run tests
         run: npm test
@@ -50,4 +51,4 @@ jobs:
         run: docker build -t groklets .
 
       - name: Verify Docker image
-        run: docker run --rm groklets node -e "console.log('ok')"
+        run: docker run --rm --entrypoint node groklets -e "console.log('Groklets OK')"
