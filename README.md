@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/social-preview.png" alt="Groklets — AI agents, working together" width="100%" />
+</p>
+
 # <img src="Groklets.jpg" width="48" align="center" /> Groklets
 
 A framework for building coordinated AI systems across multiple model providers.
