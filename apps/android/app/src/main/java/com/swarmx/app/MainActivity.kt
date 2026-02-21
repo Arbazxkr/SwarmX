@@ -1,8 +1,8 @@
-// SwarmX Android Companion Node
+// Groklets Android Companion Node
 // Kotlin + Jetpack Compose
 // Requires: Android Studio, minSdk 26, targetSdk 34
 
-package com.swarmx.app
+package com.Groklets.app
 
 import android.os.Bundle
 import android.speech.RecognizerIntent
@@ -38,8 +38,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            SwarmXTheme {
-                SwarmXApp()
+            GrokletsTheme {
+                GrokletsApp()
             }
         }
     }
@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
 // ── Theme ─────────────────────────────────────────────────────
 
 @Composable
-fun SwarmXTheme(content: @Composable () -> Unit) {
+fun GrokletsTheme(content: @Composable () -> Unit) {
     val darkColors = darkColorScheme(
         primary = Color(0xFF3B82F6),
         onPrimary = Color.White,
@@ -138,7 +138,7 @@ class GatewayClient {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SwarmXApp() {
+fun GrokletsApp() {
     val gateway = remember { GatewayClient() }
     var selectedTab by remember { mutableIntStateOf(0) }
 
@@ -203,7 +203,7 @@ fun ChatScreen(gateway: GatewayClient) {
         TopAppBar(
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("⚛ SwarmX", fontWeight = FontWeight.Bold)
+                    Text("⚛ Groklets", fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(8.dp))
                     Box(
                         modifier = Modifier

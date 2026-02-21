@@ -1,5 +1,5 @@
 /**
- * Tests for the SwarmX Task Scheduler.
+ * Tests for the Groklets Task Scheduler.
  */
 
 import { describe, it, expect, beforeEach } from "vitest";

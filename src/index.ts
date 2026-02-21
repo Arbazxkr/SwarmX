@@ -1,6 +1,6 @@
 /**
- * SwarmX — Multi-Agent Orchestration Framework
- * @module swarmx
+ * Groklets — Multi-Agent Orchestration Framework
+ * @module groklets
  */
 
 // Core

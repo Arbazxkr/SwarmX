@@ -1,0 +1,18 @@
+{
+  "sessionId": "worker-fccadc-1771632051615",
+  "agentId": "worker-fccadc",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Test task"
+    },
+    {
+      "role": "assistant",
+      "content": "Mock response #1"
+    }
+  ],
+  "createdAt": 1771632051615,
+  "updatedAt": 1771632051616,
+  "metadata": {},
+  "tokenCount": 7
+}

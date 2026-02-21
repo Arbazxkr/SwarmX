@@ -1,5 +1,5 @@
 /**
- * SwarmX — Retry utility for provider API calls.
+ * Groklets — Retry utility for provider API calls.
  */
 
 import { createLogger } from "./logger.js";

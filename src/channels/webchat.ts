@@ -1,5 +1,5 @@
 /**
- * SwarmX WebChat Channel — Browser-based chat served from the Gateway.
+ * Groklets WebChat Channel — Browser-based chat served from the Gateway.
  *
  * Connects to the WebSocket Gateway and provides a simple
  * HTTP endpoint serving a chat UI. No external deps — just HTML.
@@ -67,7 +67,7 @@ function connect() {
   ws.onopen = () => {
     status.textContent = 'Connected';
     ws.send(JSON.stringify({ type: 'event.subscribe', payload: { topics: ['agent.response.*', 'stream.*'] } }));
-    addMsg('system', '', 'Connected to SwarmX');
+    addMsg('system', '', 'Connected to Groklets');
   };
   ws.onmessage = (e) => {
     const data = JSON.parse(e.data);
@@ -112,7 +112,7 @@ export class WebChatChannel extends ChannelAdapter {
 
     constructor(engine: SwarmEngine, config: WebChatConfig, wsPort?: number) {
         super(engine, { ...config, name: config.name ?? "webchat" });
-        this.webChatConfig = { port: 3737, title: "SwarmX Chat", ...config };
+        this.webChatConfig = { port: 3737, title: "Groklets Chat", ...config };
         this.wsPort = wsPort ?? 18789;
     }
 

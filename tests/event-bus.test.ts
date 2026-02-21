@@ -1,5 +1,5 @@
 /**
- * Tests for the SwarmX EventBus.
+ * Tests for the Groklets EventBus.
  */
 
 import { describe, it, expect, beforeEach } from "vitest";

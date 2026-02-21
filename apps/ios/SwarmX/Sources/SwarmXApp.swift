@@ -1,5 +1,5 @@
-// SwarmXApp.swift — iOS Companion Node
-// SwarmX Multi-Agent Orchestration Framework
+// GrokletsApp.swift — iOS Companion Node
+// Groklets Multi-Agent Orchestration Framework
 // Requires: iOS 17+, Xcode 15+
 
 import SwiftUI
@@ -10,7 +10,7 @@ import Speech
 // MARK: - App Entry Point
 
 @main
-struct SwarmXApp: App {
+struct GrokletsApp: App {
     @StateObject private var gateway = GatewayClient()
     @StateObject private var canvas = CanvasHost()
     @StateObject private var voice = VoiceEngine()
@@ -299,7 +299,7 @@ struct ChatTab: View {
                 .padding()
                 .background(Color(.systemBackground))
             }
-            .navigationTitle("SwarmX")
+            .navigationTitle("Groklets")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

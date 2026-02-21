@@ -1,20 +1,20 @@
 // swift-tools-version: 5.9
-// SwarmX macOS Menu Bar App
+// Groklets macOS Menu Bar App
 
 import PackageDescription
 
 let package = Package(
-    name: "SwarmX",
+    name: "Groklets",
     platforms: [
         .macOS(.v14)
     ],
     products: [
-        .executable(name: "SwarmX", targets: ["SwarmX"])
+        .executable(name: "Groklets", targets: ["Groklets"])
     ],
     targets: [
         .executableTarget(
-            name: "SwarmX",
-            path: "SwarmX/Sources"
+            name: "Groklets",
+            path: "Groklets/Sources"
         )
     ]
 )

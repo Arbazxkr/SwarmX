@@ -1,9 +1,9 @@
-# SwarmX Example — Research Team Swarm
+# Groklets Example — Research Team Swarm
 # This config demonstrates a multi-agent research team using OpenAI.
 #
 # Usage:
 #   export OPENAI_API_KEY=your-key
-#   swarmx run examples/research_team.yaml --interactive
+#   Groklets run examples/research_team.yaml --interactive
 
 swarm:
   name: "Research Team"

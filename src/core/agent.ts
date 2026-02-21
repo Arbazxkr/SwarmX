@@ -1,5 +1,5 @@
 /**
- * SwarmX Agent — Production-grade agent with full lifecycle.
+ * Groklets Agent — Production-grade agent with full lifecycle.
  *
  * Features:
  *   - Event-driven communication via the EventBus

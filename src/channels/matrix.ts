@@ -1,5 +1,5 @@
 /**
- * SwarmX Matrix Channel — matrix-js-sdk adapter.
+ * Groklets Matrix Channel — matrix-js-sdk adapter.
  */
 
 import { ChannelAdapter, type ChannelConfig, type ChannelMessage } from "./adapter.js";
@@ -80,7 +80,7 @@ export class MatrixChannel extends ChannelAdapter {
     }
 
     async sendMessage(chatId: string, content: string): Promise<void> {
-        const txnId = `swarmx_${Date.now()}`;
+        const txnId = `Groklets_${Date.now()}`;
         await fetch(
             `${this.matrixConfig.homeserverUrl}/_matrix/client/v3/rooms/${encodeURIComponent(chatId)}/send/m.room.message/${txnId}`,
             {

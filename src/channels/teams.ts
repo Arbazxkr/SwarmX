@@ -1,5 +1,5 @@
 /**
- * SwarmX Microsoft Teams Channel — Bot Framework adapter.
+ * Groklets Microsoft Teams Channel — Bot Framework adapter.
  */
 
 import { ChannelAdapter, type ChannelConfig, type ChannelMessage } from "./adapter.js";

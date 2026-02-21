@@ -1,0 +1,18 @@
+{
+  "sessionId": "handler-364e69-1771633275877",
+  "agentId": "handler-364e69",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Do something"
+    },
+    {
+      "role": "assistant",
+      "content": "Mock response #1"
+    }
+  ],
+  "createdAt": 1771633275877,
+  "updatedAt": 1771633275878,
+  "metadata": {},
+  "tokenCount": 7
+}

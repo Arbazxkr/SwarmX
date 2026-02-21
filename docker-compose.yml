@@ -1,9 +1,9 @@
 version: "3.8"
 
 services:
-  swarmx:
+  Groklets:
     build: .
-    container_name: swarmx
+    container_name: Groklets
     restart: unless-stopped
     ports:
       - "18789:18789"  # Gateway WebSocket
@@ -13,13 +13,13 @@ services:
     volumes:
       - ./swarm.yaml:/app/swarm.yaml:ro
       - ./.env:/app/.env:ro
-      - swarmx-data:/app/.swarmx
+      - Groklets-data:/app/.Groklets
     env_file:
       - .env
     environment:
       - NODE_ENV=production
-      - SWARMX_LOG_LEVEL=info
+      - Groklets_LOG_LEVEL=info
     command: ["gateway", "swarm.yaml", "--port", "18789"]
 
 volumes:
-  swarmx-data:
+  Groklets-data:

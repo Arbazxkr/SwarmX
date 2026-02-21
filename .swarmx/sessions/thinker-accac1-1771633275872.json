@@ -1,0 +1,18 @@
+{
+  "sessionId": "thinker-accac1-1771633275872",
+  "agentId": "thinker-accac1",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hello!"
+    },
+    {
+      "role": "assistant",
+      "content": "Mock response #1"
+    }
+  ],
+  "createdAt": 1771633275872,
+  "updatedAt": 1771633275873,
+  "metadata": {},
+  "tokenCount": 6
+}

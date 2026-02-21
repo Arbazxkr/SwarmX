@@ -1,5 +1,5 @@
 /**
- * SwarmX Channels — Barrel export.
+ * Groklets Channels — Barrel export.
  */
 
 export { ChannelAdapter, type ChannelConfig, type ChannelMessage } from "./adapter.js";

@@ -1,7 +1,7 @@
 {
-    "name": "swarmx",
+    "name": "groklets",
     "version": "0.5.0",
-    "description": "A model-agnostic, async, event-driven multi-agent orchestration framework",
+    "description": "Groklets — A model-agnostic, async, event-driven multi-agent orchestration framework",
     "type": "module",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -15,7 +15,7 @@
         }
     },
     "bin": {
-        "swarmx": "./dist/cli/main.js"
+        "groklets": "./dist/cli/main.js"
     },
     "files": [
         "dist/",
@@ -25,9 +25,9 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/Arbazxkr/SwarmX.git"
+        "url": "https://github.com/Arbazxkr/Groklets.git"
     },
-    "homepage": "https://github.com/Arbazxkr/SwarmX",
+    "homepage": "https://github.com/Arbazxkr/Groklets",
     "scripts": {
         "build": "tsc",
         "dev": "tsx watch src/cli/main.ts",
@@ -40,6 +40,7 @@
         "prepublishOnly": "npm run build"
     },
     "keywords": [
+        "groklets",
         "agents",
         "orchestration",
         "multi-agent",

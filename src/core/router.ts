@@ -1,5 +1,5 @@
 /**
- * SwarmX Advanced Routing — Group isolation, activation modes, queue modes.
+ * Groklets Advanced Routing — Group isolation, activation modes, queue modes.
  *
  * Features:
  *   - Group message routing (each group gets isolated context)

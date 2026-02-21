@@ -1,5 +1,5 @@
 /**
- * SwarmX WhatsApp Channel — Baileys (Web) adapter.
+ * Groklets WhatsApp Channel — Baileys (Web) adapter.
  *
  * Uses @whiskeysockets/baileys to connect via WhatsApp Web protocol.
  * No Meta Business API needed — runs locally.
@@ -34,7 +34,7 @@ export class WhatsAppChannel extends ChannelAdapter {
     constructor(engine: SwarmEngine, config: WhatsAppConfig) {
         super(engine, { ...config, name: config.name ?? "whatsapp" });
         this.whatsappConfig = {
-            authDir: config.authDir ?? join(process.cwd(), ".swarmx", "whatsapp-auth"),
+            authDir: config.authDir ?? join(process.cwd(), ".Groklets", "whatsapp-auth"),
             autoReconnect: config.autoReconnect ?? true,
             sendTyping: config.sendTyping ?? true,
             ...config,
@@ -52,7 +52,7 @@ export class WhatsAppChannel extends ChannelAdapter {
             version,
             auth: state,
             printQRInTerminal: true,
-            browser: ["SwarmX", "Chrome", "1.0.0"],
+            browser: ["Groklets", "Chrome", "1.0.0"],
         });
 
         this.sock.ev.on("creds.update", saveCreds);

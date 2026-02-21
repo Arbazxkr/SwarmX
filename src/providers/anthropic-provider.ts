@@ -1,5 +1,5 @@
 /**
- * SwarmX Anthropic Provider — Claude 3.5, Claude 3, and future models.
+ * Groklets Anthropic Provider — Claude 3.5, Claude 3, and future models.
  */
 
 import Anthropic from "@anthropic-ai/sdk";

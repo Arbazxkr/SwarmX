@@ -1,5 +1,5 @@
 /**
- * SwarmX Provider Abstraction — Model-agnostic LLM provider interface.
+ * Groklets Provider Abstraction — Model-agnostic LLM provider interface.
  *
  * The provider layer ensures the core engine has zero dependency on
  * any specific LLM vendor. Providers are fully interchangeable and

@@ -1,5 +1,5 @@
 /**
- * Tests for SwarmX production features:
+ * Tests for Groklets production features:
  *   - Model failover
  *   - Tool execution loop
  *   - Session persistence
@@ -205,7 +205,7 @@ describe("ToolExecutor", () => {
 
 // ── Session Store Tests ───────────────────────────────────────
 
-const TEST_SESSION_DIR = join(process.cwd(), ".swarmx-test-sessions");
+const TEST_SESSION_DIR = join(process.cwd(), ".Groklets-test-sessions");
 
 describe("SessionStore", () => {
     let store: SessionStore;

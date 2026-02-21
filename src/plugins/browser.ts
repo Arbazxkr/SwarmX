@@ -1,5 +1,5 @@
 /**
- * SwarmX Browser Control — CDP (Chrome DevTools Protocol) automation.
+ * Groklets Browser Control — CDP (Chrome DevTools Protocol) automation.
  *
  * Provides tools for agents to control a headless Chrome browser:
  *   - navigate(url)

@@ -1,5 +1,5 @@
 /**
- * SwarmX Telegram Channel — grammY bot adapter.
+ * Groklets Telegram Channel — grammY bot adapter.
  */
 
 import { Bot, type Context } from "grammy";

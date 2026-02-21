@@ -1,4 +1,4 @@
-# SwarmX Example — Multi-Provider Swarm
+# Groklets Example — Multi-Provider Swarm
 # Demonstrates using multiple LLM providers in a single swarm,
 # with each agent bound to a different provider.
 #
@@ -6,7 +6,7 @@
 #   export OPENAI_API_KEY=your-key
 #   export ANTHROPIC_API_KEY=your-key
 #   export GOOGLE_API_KEY=your-key
-#   swarmx run examples/multi_provider.yaml --interactive
+#   Groklets run examples/multi_provider.yaml --interactive
 
 swarm:
   name: "Multi-Provider Analysis Team"

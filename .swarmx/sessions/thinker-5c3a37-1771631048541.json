@@ -1,0 +1,18 @@
+{
+  "sessionId": "thinker-5c3a37-1771631048541",
+  "agentId": "thinker-5c3a37",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hello!"
+    },
+    {
+      "role": "assistant",
+      "content": "Mock response #1"
+    }
+  ],
+  "createdAt": 1771631048541,
+  "updatedAt": 1771631048542,
+  "metadata": {},
+  "tokenCount": 6
+}

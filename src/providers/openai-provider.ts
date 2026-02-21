@@ -1,5 +1,5 @@
 /**
- * SwarmX OpenAI Provider — Adapter for OpenAI's API.
+ * Groklets OpenAI Provider — Adapter for OpenAI's API.
  * Supports GPT-4o, GPT-4, GPT-3.5-turbo, and any OpenAI-compatible model.
  */
 

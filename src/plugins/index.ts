@@ -1,5 +1,5 @@
 /**
- * SwarmX Plugins — Barrel export.
+ * Groklets Plugins — Barrel export.
  */
 
 export { SkillRegistry, type SkillManifest, type LoadedSkill } from "./skills.js";

@@ -1,5 +1,5 @@
 /**
- * SwarmX Session Store — Persistent conversation storage.
+ * Groklets Session Store — Persistent conversation storage.
  *
  * Saves agent conversation history to disk so sessions survive
  * process restarts. Supports multiple concurrent sessions.
@@ -38,7 +38,7 @@ export class SessionStore {
     private autoSave: boolean;
 
     constructor(config?: SessionStoreConfig) {
-        this.dir = config?.directory ?? join(process.cwd(), ".swarmx", "sessions");
+        this.dir = config?.directory ?? join(process.cwd(), ".Groklets", "sessions");
         this.maxPerAgent = config?.maxSessionsPerAgent ?? 100;
         this.autoSave = config?.autoSave ?? true;
 

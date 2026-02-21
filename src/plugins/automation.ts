@@ -1,5 +1,5 @@
 /**
- * SwarmX Scheduler — Cron jobs + Webhook triggers.
+ * Groklets Scheduler — Cron jobs + Webhook triggers.
  *
  * Allows agents to be triggered on a schedule or by incoming HTTP webhooks.
  */

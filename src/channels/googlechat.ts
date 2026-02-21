@@ -1,5 +1,5 @@
 /**
- * SwarmX Google Chat Channel — Google Chat API adapter.
+ * Groklets Google Chat Channel — Google Chat API adapter.
  */
 
 import { ChannelAdapter, type ChannelConfig, type ChannelMessage } from "./adapter.js";

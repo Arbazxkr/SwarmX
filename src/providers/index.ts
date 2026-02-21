@@ -1,5 +1,5 @@
 /**
- * SwarmX Providers — Re-export all provider adapters.
+ * Groklets Providers — Re-export all provider adapters.
  */
 
 export { OpenAIProvider } from "./openai-provider.js";

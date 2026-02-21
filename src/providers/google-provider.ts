@@ -1,5 +1,5 @@
 /**
- * SwarmX Google Provider — Gemini 2.0 Flash, Gemini 1.5 Pro, and future models.
+ * Groklets Google Provider — Gemini 2.0 Flash, Gemini 1.5 Pro, and future models.
  */
 
 import { GoogleGenAI } from "@google/genai";

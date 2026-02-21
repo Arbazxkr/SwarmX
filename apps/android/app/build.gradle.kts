@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.swarmx.app"
+    namespace = "com.Groklets.app"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.swarmx.app"
+        applicationId = "com.Groklets.app"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

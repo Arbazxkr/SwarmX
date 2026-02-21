@@ -1,20 +1,20 @@
 // swift-tools-version: 5.9
-// SwarmX iOS Node
+// Groklets iOS Node
 
 import PackageDescription
 
 let package = Package(
-    name: "SwarmX-iOS",
+    name: "Groklets-iOS",
     platforms: [
         .iOS(.v17)
     ],
     products: [
-        .library(name: "SwarmX-iOS", targets: ["SwarmXiOS"])
+        .library(name: "Groklets-iOS", targets: ["GrokletsiOS"])
     ],
     targets: [
         .target(
-            name: "SwarmXiOS",
-            path: "SwarmX/Sources"
+            name: "GrokletsiOS",
+            path: "Groklets/Sources"
         )
     ]
 )

@@ -1,5 +1,5 @@
 /**
- * SwarmX Context Manager — Smart context window management.
+ * Groklets Context Manager — Smart context window management.
  *
  * Handles:
  *   - Token counting (rough + provider-reported)

@@ -1,5 +1,5 @@
 /**
- * SwarmX Engine — Production-grade orchestration engine.
+ * Groklets Engine — Production-grade orchestration engine.
  *
  * Integrates all core subsystems:
  *   - EventBus (async event routing)
@@ -132,7 +132,7 @@ export class SwarmEngine {
     async start(): Promise<void> {
         if (this._running) return;
 
-        log.info("Starting SwarmX engine...");
+        log.info("Starting Groklets engine...");
 
         await this.eventBus.start();
 

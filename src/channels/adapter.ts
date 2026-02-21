@@ -1,5 +1,5 @@
 /**
- * SwarmX Channel Adapter — Base interface for messaging platforms.
+ * Groklets Channel Adapter — Base interface for messaging platforms.
  *
  * Every channel adapter (WhatsApp, Telegram, Discord, Slack, WebChat)
  * implements this interface to bridge external messages ↔ event bus.

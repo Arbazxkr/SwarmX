@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.swarmx.app">
+    package="com.Groklets.app">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -8,13 +8,13 @@
 
     <application
         android:allowBackup="true"
-        android:label="SwarmX"
-        android:theme="@style/Theme.SwarmX">
+        android:label="Groklets"
+        android:theme="@style/Theme.Groklets">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="SwarmX">
+            android:label="Groklets">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

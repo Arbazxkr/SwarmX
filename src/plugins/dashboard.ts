@@ -1,5 +1,5 @@
 /**
- * SwarmX Dashboard — Web control panel served from the Gateway.
+ * Groklets Dashboard — Web control panel served from the Gateway.
  *
  * A self-contained HTML dashboard for managing the engine.
  * No React/build tools — pure HTML + CSS + inline JS.
@@ -22,7 +22,7 @@ const DASHBOARD_HTML = (wsPort: number) => `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SwarmX Dashboard</title>
+<title>Groklets Dashboard</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root { --bg: #09090b; --card: #18181b; --border: #27272a; --text: #fafafa; --dim: #71717a; --accent: #3b82f6; --green: #22c55e; --red: #ef4444; --yellow: #eab308; }
@@ -63,7 +63,7 @@ const DASHBOARD_HTML = (wsPort: number) => `<!DOCTYPE html>
 <body>
 <div class="header">
   <div>⚛</div>
-  <h1>SwarmX Dashboard</h1>
+  <h1>Groklets Dashboard</h1>
   <span class="badge offline" id="statusBadge">Connecting</span>
   <div class="right" id="clock"></div>
 </div>

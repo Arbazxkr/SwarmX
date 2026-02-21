@@ -1,5 +1,5 @@
 /**
- * SwarmX Logger — Structured logging with levels and color output.
+ * Groklets Logger — Structured logging with levels and color output.
  */
 
 import chalk from "chalk";
@@ -67,10 +67,10 @@ export class Logger {
     }
 }
 
-/** Global log level — set via SWARMX_LOG_LEVEL env or programmatically */
+/** Global log level — set via Groklets_LOG_LEVEL env or programmatically */
 let globalLevel = LogLevel.INFO;
 
-const envLevel = process.env.SWARMX_LOG_LEVEL?.toUpperCase();
+const envLevel = process.env.Groklets_LOG_LEVEL?.toUpperCase();
 if (envLevel === "DEBUG") globalLevel = LogLevel.DEBUG;
 else if (envLevel === "WARN") globalLevel = LogLevel.WARN;
 else if (envLevel === "ERROR") globalLevel = LogLevel.ERROR;

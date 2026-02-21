@@ -1,5 +1,5 @@
 /**
- * SwarmX Example — Programmatic API Usage
+ * Groklets Example — Programmatic API Usage
  *
  * Usage: npx tsx examples/programmatic-usage.ts
  */

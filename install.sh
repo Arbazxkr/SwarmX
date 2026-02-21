@@ -1,11 +1,11 @@
 #!/bin/bash
-# SwarmX Install Script
-# Usage: curl -fsSL https://raw.githubusercontent.com/Arbazxkr/SwarmX/main/install.sh | bash
+# Groklets Install Script
+# Usage: curl -fsSL https://raw.githubusercontent.com/Arbazxkr/Groklets/main/install.sh | bash
 
 set -e
 
-REPO="Arbazxkr/SwarmX"
-INSTALL_DIR="${SWARMX_HOME:-$HOME/.swarmx}"
+REPO="Arbazxkr/Groklets"
+INSTALL_DIR="${Groklets_HOME:-$HOME/.Groklets}"
 
 # Colors
 RED='\033[0;31m'
@@ -16,7 +16,7 @@ BOLD='\033[1m'
 NC='\033[0m'
 
 echo ""
-echo -e "  ${CYAN}⚛${NC}  ${BOLD}SwarmX${NC} Installer"
+echo -e "  ${CYAN}⚛${NC}  ${BOLD}Groklets${NC} Installer"
 echo -e "  ${DIM}Multi-Agent Orchestration Framework${NC}"
 echo -e "  ${DIM}──────────────────────────────────${NC}"
 echo ""
@@ -67,10 +67,10 @@ echo -e "  ${DIM}Linking CLI...${NC}"
 npm link --silent 2>/dev/null
 
 echo ""
-echo -e "  ${GREEN}✓${NC} SwarmX installed successfully!"
+echo -e "  ${GREEN}✓${NC} Groklets installed successfully!"
 echo ""
 echo -e "  ${BOLD}Get started:${NC}"
-echo -e "    ${CYAN}swarmx onboard${NC}        Interactive setup"
-echo -e "    ${CYAN}swarmx init${NC}           Create a project"
-echo -e "    ${CYAN}swarmx --help${NC}         Show all commands"
+echo -e "    ${CYAN}Groklets onboard${NC}        Interactive setup"
+echo -e "    ${CYAN}Groklets init${NC}           Create a project"
+echo -e "    ${CYAN}Groklets --help${NC}         Show all commands"
 echo ""

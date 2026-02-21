@@ -1,5 +1,5 @@
 /**
- * SwarmX Slack Channel — Bolt adapter.
+ * Groklets Slack Channel — Bolt adapter.
  */
 
 import { App } from "@slack/bolt";

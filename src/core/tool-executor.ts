@@ -1,5 +1,5 @@
 /**
- * SwarmX Tool Executor — Agentic tool execution loop.
+ * Groklets Tool Executor — Agentic tool execution loop.
  *
  * When an LLM returns tool_calls, the executor:
  *   1. Runs each tool function

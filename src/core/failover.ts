@@ -1,5 +1,5 @@
 /**
- * SwarmX Model Failover — Automatic fallback when a provider fails.
+ * Groklets Model Failover — Automatic fallback when a provider fails.
  *
  * Wraps multiple providers in priority order. If the primary fails,
  * automatically tries the next one. Tracks health per-provider

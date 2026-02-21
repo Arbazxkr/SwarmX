@@ -1,5 +1,5 @@
 /**
- * SwarmX Event Bus — Central non-blocking event routing system.
+ * Groklets Event Bus — Central non-blocking event routing system.
  *
  * The EventBus is the nervous system of every swarm. Agents subscribe
  * to topics, emit events, and the bus routes them. No direct coupling
@@ -50,7 +50,7 @@ export function createEvent(partial: Partial<SwarmEvent> & { topic: string }): S
 }
 
 /**
- * Central async event bus for SwarmX.
+ * Central async event bus for Groklets.
  *
  * Supports topic routing with wildcards:
  *   "task.created"   → exact match

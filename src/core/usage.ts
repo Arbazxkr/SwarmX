@@ -1,5 +1,5 @@
 /**
- * SwarmX Usage Tracker — Token counting and cost tracking per model.
+ * Groklets Usage Tracker — Token counting and cost tracking per model.
  */
 
 import { createLogger } from "../utils/logger.js";

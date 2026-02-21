@@ -1,5 +1,5 @@
 /**
- * SwarmX Task Scheduler — Async task lifecycle management.
+ * Groklets Task Scheduler — Async task lifecycle management.
  *
  * Distributes work to agents via the event bus. Supports priority scheduling,
  * delayed execution, task dependencies, and automatic retries.

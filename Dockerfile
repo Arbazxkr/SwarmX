@@ -27,7 +27,7 @@ COPY README.md ./
 EXPOSE 18789 3737 3838 9876
 
 ENV NODE_ENV=production
-ENV SWARMX_LOG_LEVEL=info
+ENV Groklets_LOG_LEVEL=info
 
 ENTRYPOINT ["node", "dist/cli/main.js"]
 CMD ["--help"]

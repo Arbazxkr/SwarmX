@@ -1,5 +1,5 @@
 /**
- * SwarmX Media Pipeline — Image/audio/video processing + transcription.
+ * Groklets Media Pipeline — Image/audio/video processing + transcription.
  *
  * Features:
  *   - Image handling (resize metadata, base64 conversion)
@@ -52,7 +52,7 @@ export class MediaPipeline {
 
     constructor(config?: MediaConfig) {
         this.config = {
-            tempDir: config?.tempDir ?? join(process.cwd(), ".swarmx", "media"),
+            tempDir: config?.tempDir ?? join(process.cwd(), ".Groklets", "media"),
             maxFileSize: config?.maxFileSize ?? 25 * 1024 * 1024,
             cleanupAfterMs: config?.cleanupAfterMs ?? 3_600_000,
             openaiApiKey: config?.openaiApiKey ?? process.env.OPENAI_API_KEY ?? "",

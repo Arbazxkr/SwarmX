@@ -1,5 +1,5 @@
 /**
- * SwarmX Security — Sandboxing, skill trust, and input validation.
+ * Groklets Security — Sandboxing, skill trust, and input validation.
  *
  * Features:
  *   - Skill signature verification

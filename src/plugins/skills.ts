@@ -1,5 +1,5 @@
 /**
- * SwarmX Skills / Plugin System
+ * Groklets Skills / Plugin System
  *
  * Installable tool packs that agents can load dynamically.
  * A skill = a directory with a manifest.json + tool implementations.
@@ -181,7 +181,7 @@ export class SkillRegistry {
         const manifest = JSON.stringify({
             name,
             version: "1.0.0",
-            description: `${name} skill for SwarmX`,
+            description: `${name} skill for Groklets`,
             tools: [
                 {
                     name: `${name}_action`,
@@ -198,7 +198,7 @@ export class SkillRegistry {
             ],
         }, null, 2);
 
-        const index = `// ${name} skill for SwarmX
+        const index = `// ${name} skill for Groklets
 export async function handleAction(args) {
   const { input } = args;
   // TODO: implement tool logic

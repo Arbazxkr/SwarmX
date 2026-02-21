@@ -1,5 +1,5 @@
 /**
- * SwarmX Config Loader — YAML-based swarm definition parser.
+ * Groklets Config Loader — YAML-based swarm definition parser.
  * Supports .env files and environment variable resolution.
  */
 

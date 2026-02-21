@@ -1,7 +1,7 @@
-# SwarmX Docker Ignore
+# Groklets Docker Ignore
 node_modules/
 dist/
-.swarmx/
+.Groklets/
 .git/
 .github/
 *.md

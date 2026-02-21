@@ -1,5 +1,5 @@
 /**
- * SwarmX Signal Channel — signal-cli adapter.
+ * Groklets Signal Channel — signal-cli adapter.
  *
  * Uses signal-cli (JSON RPC mode) to send/receive Signal messages.
  * Requires signal-cli installed and registered.

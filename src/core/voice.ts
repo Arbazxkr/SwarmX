@@ -1,5 +1,5 @@
 /**
- * SwarmX Voice — Text-to-Speech (ElevenLabs) + Speech-to-Text (Whisper).
+ * Groklets Voice — Text-to-Speech (ElevenLabs) + Speech-to-Text (Whisper).
  *
  * Features:
  *   - ElevenLabs TTS (streaming audio)

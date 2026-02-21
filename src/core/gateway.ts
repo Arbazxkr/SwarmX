@@ -1,5 +1,5 @@
 /**
- * SwarmX WebSocket Gateway — Real-time control plane.
+ * Groklets WebSocket Gateway — Real-time control plane.
  *
  * Runs a WebSocket server that external tools, apps, and UIs
  * can connect to. Bridges the event bus to the outside world.

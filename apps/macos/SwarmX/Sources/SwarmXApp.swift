@@ -1,5 +1,5 @@
-// SwarmXApp.swift — macOS Menu Bar Application
-// SwarmX Multi-Agent Orchestration Framework
+// GrokletsApp.swift — macOS Menu Bar Application
+// Groklets Multi-Agent Orchestration Framework
 // Requires: macOS 14+, Xcode 15+
 
 import SwiftUI
@@ -9,7 +9,7 @@ import Network
 // MARK: - App Entry Point
 
 @main
-struct SwarmXApp: App {
+struct GrokletsApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var gateway = GatewayClient()
     @StateObject private var voiceEngine = VoiceEngine()
@@ -21,7 +21,7 @@ struct SwarmXApp: App {
                 .environmentObject(voiceEngine)
         } label: {
             Image(systemName: "atom")
-            Text("SwarmX")
+            Text("Groklets")
         }
         .menuBarExtraStyle(.window)
 
@@ -277,7 +277,7 @@ struct MenuBarView: View {
             HStack {
                 Image(systemName: "atom")
                     .foregroundColor(.blue)
-                Text("SwarmX")
+                Text("Groklets")
                     .font(.headline)
                 Spacer()
                 Circle()
@@ -351,7 +351,7 @@ struct MenuBarView: View {
                 Divider()
 
                 Button(action: { NSApplication.shared.terminate(nil) }) {
-                    Label("Quit SwarmX", systemImage: "power")
+                    Label("Quit Groklets", systemImage: "power")
                 }
                 .keyboardShortcut("q")
             }

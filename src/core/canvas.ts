@@ -1,5 +1,5 @@
 /**
- * SwarmX Canvas — Agent-to-UI (A2UI) Push System.
+ * Groklets Canvas — Agent-to-UI (A2UI) Push System.
  *
  * Allows agents to push interactive UI to connected clients
  * (WebChat, iOS, Android, macOS). Agents generate HTML/data,

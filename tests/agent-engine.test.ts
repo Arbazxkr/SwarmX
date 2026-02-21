@@ -1,5 +1,5 @@
 /**
- * Tests for the SwarmX Agent and Engine.
+ * Tests for the Groklets Agent and Engine.
  * Uses a mock provider to avoid real API calls.
  */
 

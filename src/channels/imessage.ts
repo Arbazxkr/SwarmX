@@ -1,5 +1,5 @@
 /**
- * SwarmX iMessage Channel — BlueBubbles adapter.
+ * Groklets iMessage Channel — BlueBubbles adapter.
  *
  * Uses BlueBubbles HTTP API to send/receive iMessages.
  * Requires BlueBubbles server running on a Mac.

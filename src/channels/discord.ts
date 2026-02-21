@@ -1,5 +1,5 @@
 /**
- * SwarmX Discord Channel — discord.js adapter.
+ * Groklets Discord Channel — discord.js adapter.
  */
 
 import { Client, GatewayIntentBits, type Message as DiscordMessage } from "discord.js";

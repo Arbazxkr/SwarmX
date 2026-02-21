@@ -1,0 +1,18 @@
+{
+  "sessionId": "a1-597fc2-1771633276928",
+  "agentId": "a1-597fc2",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Shared task"
+    },
+    {
+      "role": "assistant",
+      "content": "Mock response #1"
+    }
+  ],
+  "createdAt": 1771633276928,
+  "updatedAt": 1771633276930,
+  "metadata": {},
+  "tokenCount": 7
+}

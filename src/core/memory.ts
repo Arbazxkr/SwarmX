@@ -1,11 +1,11 @@
 /**
- * SwarmX Memory System — Persistent long-term memory + RAG.
+ * Groklets Memory System — Persistent long-term memory + RAG.
  *
  * Features:
  *   - Key-value memory store (facts, preferences, context)
  *   - Vector-like semantic search (TF-IDF based, no external deps)
  *   - Conversation summaries for long-term recall
- *   - Memory files persisted to disk (.swarmx/memory/)
+ *   - Memory files persisted to disk (.Groklets/memory/)
  *   - Auto-extract important facts from conversations
  */
 
@@ -45,7 +45,7 @@ export class MemoryStore {
     private idf = new Map<string, number>(); // inverse doc frequency
 
     constructor(config?: MemoryConfig) {
-        this.dir = config?.dir ?? join(process.cwd(), ".swarmx", "memory");
+        this.dir = config?.dir ?? join(process.cwd(), ".Groklets", "memory");
         this.maxEntries = config?.maxEntries ?? 10_000;
 
         if (!existsSync(this.dir)) mkdirSync(this.dir, { recursive: true });

@@ -1,5 +1,5 @@
 /**
- * SwarmX xAI Provider — Grok-2, Grok-1, and future models.
+ * Groklets xAI Provider — Grok-2, Grok-1, and future models.
  * Uses OpenAI-compatible API with custom base URL.
  */
 

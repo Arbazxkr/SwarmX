@@ -1,0 +1,18 @@
+{
+  "sessionId": "thinker-4059cb-1771632051081",
+  "agentId": "thinker-4059cb",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hello!"
+    },
+    {
+      "role": "assistant",
+      "content": "Mock response #1"
+    }
+  ],
+  "createdAt": 1771632051081,
+  "updatedAt": 1771632051082,
+  "metadata": {},
+  "tokenCount": 6
+}

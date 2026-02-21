@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * SwarmX CLI — Production-grade CLI for managing and running swarms.
+ * Groklets CLI — Production-grade CLI for managing and running swarms.
  */
 
 import { Command } from "commander";
@@ -17,7 +17,7 @@ const program = new Command();
 
 function banner(): void {
     console.log("");
-    console.log(chalk.cyan("  ⚛  ") + chalk.bold.white("SwarmX") + chalk.dim(` v${VERSION}`));
+    console.log(chalk.cyan("  ⚛  ") + chalk.bold.white("Groklets") + chalk.dim(` v${VERSION}`));
     console.log(chalk.dim("  Multi-Agent Orchestration Framework"));
     console.log(chalk.dim("  ─".repeat(22)));
     console.log("");
@@ -41,8 +41,8 @@ function fail(msg: string): void { console.log(chalk.red(`  ✗ ${msg}`)); }
 // ── CLI Setup ─────────────────────────────────────────────────
 
 program
-    .name("swarmx")
-    .description("⚛ SwarmX — Multi-Agent Orchestration Framework")
+    .name("groklets")
+    .description("⚛ Groklets — Multi-Agent Orchestration Framework")
     .version(VERSION);
 
 // ── Run ───────────────────────────────────────────────────────
@@ -57,7 +57,7 @@ program
     .action(async (configFile: string, opts: { task?: string; interactive?: boolean; logLevel?: string }) => {
         banner();
 
-        if (opts.logLevel) process.env.SWARMX_LOG_LEVEL = opts.logLevel;
+        if (opts.logLevel) process.env.Groklets_LOG_LEVEL = opts.logLevel;
 
         let engine;
         try {
@@ -238,7 +238,7 @@ program
 
 program
     .command("init")
-    .description("Scaffold a new SwarmX project")
+    .description("Scaffold a new Groklets project")
     .option("-n, --name <name>", "Project name", "my-swarm")
     .option("-p, --provider <provider>", "Default provider", "openai")
     .action((opts: { name: string; provider: string }) => {
@@ -307,7 +307,7 @@ program
         - task.created
 `);
 
-        writeFileSync(envPath, `# SwarmX Environment\n${envVar}=your-key-here\n`);
+        writeFileSync(envPath, `# Groklets Environment\n${envVar}=your-key-here\n`);
         writeFileSync(`${dir}/.gitignore`, `.env\nnode_modules/\n`);
 
         success(`Created project: ${dir}/`);
@@ -318,7 +318,7 @@ program
         console.log(chalk.dim("  Next steps:"));
         console.log(`  1. ${chalk.cyan(`cd ${dir}`)}`);
         console.log(`  2. Edit ${chalk.cyan(".env")} with your API key`);
-        console.log(`  3. ${chalk.cyan("swarmx run swarm.yaml --interactive")}`);
+        console.log(`  3. ${chalk.cyan("groklets run swarm.yaml --interactive")}`);
         console.log("");
     });
 
@@ -329,7 +329,7 @@ program
     .description("Interactive setup wizard for new users")
     .action(async () => {
         banner();
-        console.log(chalk.bold("  Welcome to SwarmX! Let's get you set up.\n"));
+        console.log(chalk.bold("  Welcome to Groklets! Let's get you set up.\n"));
 
         const rl = createInterface({ input: process.stdin, output: process.stdout });
         const ask = (q: string): Promise<string> => new Promise((res) => rl.question(chalk.cyan(`  ${q} `), res));
@@ -413,7 +413,7 @@ program
         success(`Project created: ${dir}/`);
         console.log("");
         console.log(chalk.bold("  Run your swarm:"));
-        console.log(chalk.cyan(`    cd ${dir} && swarmx run swarm.yaml -i`));
+        console.log(chalk.cyan(`    cd ${dir} && groklets run swarm.yaml -i`));
         console.log("");
     });
 
@@ -430,7 +430,7 @@ program
     .action(async (configFile: string, opts: { port: string; host: string; auth?: string; logLevel?: string }) => {
         banner();
 
-        if (opts.logLevel) process.env.SWARMX_LOG_LEVEL = opts.logLevel;
+        if (opts.logLevel) process.env.Groklets_LOG_LEVEL = opts.logLevel;
 
         let engine;
         try {
