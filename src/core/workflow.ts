@@ -286,13 +286,42 @@ export class WorkflowOrchestrator {
                     ),
                 ]);
 
+                // Validate structured output if schema provided
+                let finalResult = result;
+                if (step.outputSchema) {
+                    try {
+                        const parsed = JSON.parse(result);
+                        // Basic schema validation: check required keys exist
+                        for (const [key, type] of Object.entries(step.outputSchema)) {
+                            if (!(key in parsed)) {
+                                throw new Error(`Missing required key: '${key}'`);
+                            }
+                            if (type === "string" && typeof parsed[key] !== "string") {
+                                throw new Error(`Key '${key}' must be string, got ${typeof parsed[key]}`);
+                            }
+                            if (type === "number" && typeof parsed[key] !== "number") {
+                                throw new Error(`Key '${key}' must be number, got ${typeof parsed[key]}`);
+                            }
+                            if (type === "boolean" && typeof parsed[key] !== "boolean") {
+                                throw new Error(`Key '${key}' must be boolean, got ${typeof parsed[key]}`);
+                            }
+                            if (type === "array" && !Array.isArray(parsed[key])) {
+                                throw new Error(`Key '${key}' must be array`);
+                            }
+                        }
+                        finalResult = result; // Keep raw JSON string
+                    } catch (parseErr) {
+                        throw new Error(`Output schema validation failed for step '${step.id}': ${(parseErr as Error).message}`);
+                    }
+                }
+
                 // Store result
                 const completedAt = Date.now();
                 const stepResult: StepResult = {
                     stepId: step.id,
                     agent: step.agent,
                     status: "done",
-                    output: result,
+                    output: finalResult,
                     startedAt, completedAt,
                     duration: completedAt - startedAt,
                     retryCount,
@@ -303,7 +332,7 @@ export class WorkflowOrchestrator {
 
                 // Write to blackboard
                 const key = step.outputKey ?? step.id;
-                blackboard.set(key, result);
+                blackboard.set(key, finalResult);
 
                 log.debug(`Step ${step.id} done (${stepResult.duration}ms)`);
 
