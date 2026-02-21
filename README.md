@@ -1,8 +1,14 @@
 # <img src="Groklets.jpg" width="48" align="center" /> Groklets
 
-Multi-agent AI orchestration framework. Run your own AI assistant on any device, any platform, any LLM.
+A framework for building coordinated AI systems across multiple model providers.
 
-Groklets is your personal AI engine. It connects to the channels you already use (WhatsApp, Telegram, Slack, Discord, Signal, iMessage, Microsoft Teams, Google Chat, Matrix, WebChat), speaks and listens via ElevenLabs + Whisper, controls browsers, remembers context, and runs on macOS/iOS/Android. The Gateway is the control plane — the product is the assistant.
+Groklets connects Claude, Grok, Gemini, and ChatGPT under one structured coordination layer — where multiple AI agents work together instead of running as isolated prompts. Define agents, assign them to different models, route outputs between them, and run structured workflows. Many models. One system. Structured collaboration.
+
+Instead of `User → One AI → Output`, you build:
+
+```
+User → Orchestrator → Multiple AI agents → Coordinated result
+```
 
 ```bash
 npm install -g groklets
@@ -13,15 +19,17 @@ groklets onboard
 
 ## 🔥 Highlights
 
-- **Local-first Gateway** — single WebSocket control plane for sessions, channels, tools, and events.
-- **Multi-channel inbox** — WhatsApp (Baileys), Telegram (grammY), Slack (Bolt), Discord (discord.js), Signal (signal-cli), iMessage (BlueBubbles), Google Chat, Microsoft Teams, Matrix, WebChat.
-- **Multi-agent routing** — route channels/groups/DMs to isolated agents with activation modes (always, mention, keyword, dm-only).
-- **Voice Wake + Talk Mode** — ElevenLabs TTS + OpenAI Whisper STT on macOS/iOS/Android.
-- **Live Canvas (A2UI)** — agents push interactive UI (cards, forms, charts, tables) to client surfaces.
-- **First-class tools** — browser (CDP), cron, webhooks, skills/plugins, media pipeline.
-- **Companion apps** — macOS menu bar (SwiftUI) + iOS/Android nodes (SwiftUI/Compose).
-- **Memory** — TF-IDF semantic search, automatic fact extraction, persistent storage.
-- **Security** — skill trust verification (SHA-256), input sanitization, rate limiting, VM sandbox.
+- **Multi-model coordination** — assign agents to OpenAI, Anthropic, Google, or xAI. Mix models in one workflow.
+- **Event-driven routing** — pub/sub event bus with wildcards. Agents subscribe to topics and react to each other.
+- **Structured agent roles** — define a coordinator, researcher, writer, coder — each with their own model, tools, and purpose.
+- **Model failover** — if Claude goes down, route to GPT-4o automatically. Health checks + cooldowns.
+- **10 delivery channels** — WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Google Chat, Teams, Matrix, WebChat.
+- **Agentic tool loop** — agents call tools, observe results, and iterate autonomously until done.
+- **Memory + context** — TF-IDF search, fact extraction, session persistence. Agents remember across conversations.
+- **Canvas (A2UI)** — agents push interactive UI (cards, forms, charts) to connected clients.
+- **Voice** — ElevenLabs TTS + Whisper STT. Agents can speak and listen.
+- **Browser control** — CDP-based Chrome automation. Agents can navigate, screenshot, click, type.
+- **Companion apps** — macOS menu bar, iOS, Android. All connect to the same orchestrator.
 
 ---
 
