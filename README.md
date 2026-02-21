@@ -1,184 +1,361 @@
 # <img src="Groklets.jpg" width="48" align="center" /> Groklets
 
-**A model-agnostic, async, event-driven multi-agent orchestration framework.**
+Multi-agent AI orchestration framework. Run your own AI assistant on any device, any platform, any LLM.
 
-> Built by Arbaz Khan — one person, zero fluff, full OpenClaw feature parity.
+Groklets is your personal AI engine. It connects to the channels you already use (WhatsApp, Telegram, Slack, Discord, Signal, iMessage, Microsoft Teams, Google Chat, Matrix, WebChat), speaks and listens via ElevenLabs + Whisper, controls browsers, remembers context, and runs on macOS/iOS/Android. The Gateway is the control plane — the product is the assistant.
+
+```bash
+npm install -g groklets
+groklets onboard
+```
 
 ---
 
-## ⚡ Groklets vs OpenClaw — Side-by-Side
+## 🔥 Highlights
 
-| Category | OpenClaw | Groklets | Status |
-|---|---|---|---|
-| **TypeScript** | 592,027 lines | 7,288 lines | ✅ Feature parity at 1.2% size |
-| **Swift (macOS + iOS)** | 71,017 lines | 965 lines | ✅ Core features covered |
-| **Kotlin (Android)** | 12,155 lines | 402 lines | ✅ Core features covered |
-| **Contributors** | 708 | 1 | 💪 |
-| **Releases** | 48 | — | v0.5.0 |
+- **Local-first Gateway** — single WebSocket control plane for sessions, channels, tools, and events.
+- **Multi-channel inbox** — WhatsApp (Baileys), Telegram (grammY), Slack (Bolt), Discord (discord.js), Signal (signal-cli), iMessage (BlueBubbles), Google Chat, Microsoft Teams, Matrix, WebChat.
+- **Multi-agent routing** — route channels/groups/DMs to isolated agents with activation modes (always, mention, keyword, dm-only).
+- **Voice Wake + Talk Mode** — ElevenLabs TTS + OpenAI Whisper STT on macOS/iOS/Android.
+- **Live Canvas (A2UI)** — agents push interactive UI (cards, forms, charts, tables) to client surfaces.
+- **First-class tools** — browser (CDP), cron, webhooks, skills/plugins, media pipeline.
+- **Companion apps** — macOS menu bar (SwiftUI) + iOS/Android nodes (SwiftUI/Compose).
+- **Memory** — TF-IDF semantic search, automatic fact extraction, persistent storage.
+- **Security** — skill trust verification (SHA-256), input sanitization, rate limiting, VM sandbox.
 
-### Engine Core
+---
 
-| Feature | OpenClaw | Groklets |
-|---|---|---|
-| Event bus (pub/sub + wildcards) | ✅ | ✅ |
-| Agent lifecycle + tool loop | ✅ | ✅ |
-| Providers (OpenAI, Anthropic, Google, xAI) | ✅ 4 | ✅ 4 |
-| Model failover + health checks | ✅ | ✅ |
-| Streaming (SSE) | ✅ | ✅ |
-| Task scheduler (deps + priorities) | ✅ | ✅ |
-| Tool executor (agentic loop) | ✅ | ✅ |
-| Session persistence | ✅ | ✅ |
-| Context management (prune + compact) | ✅ | ✅ |
-| Usage tracking (cost per model) | ✅ | ✅ |
-| Gateway WebSocket control plane | ✅ | ✅ |
-| Memory (TF-IDF search + facts) | ✅ | ✅ |
-| Security (trust, sanitize, rate limit, sandbox) | ✅ | ✅ |
-| Media pipeline (Whisper + vision) | ✅ | ✅ |
-| Voice (ElevenLabs TTS + Whisper STT) | ✅ | ✅ |
-| Advanced routing (activation modes, groups) | ✅ | ✅ |
-| Canvas A2UI (push/eval/snapshot) | ✅ | ✅ |
+## 🏗 Architecture
 
-### Messaging Channels
+```
+WhatsApp / Telegram / Slack / Discord / Signal / iMessage
+Google Chat / Teams / Matrix / WebChat
+         │
+         ▼
+┌───────────────────────────────────┐
+│            Gateway                │
+│        (control plane)            │
+│     ws://127.0.0.1:18789          │
+└──────────────┬────────────────────┘
+               │
+    ┌──────────┼──────────┐
+    │          │          │
+  Agent 1   Agent 2   Agent N
+    │          │          │
+    └──────────┼──────────┘
+               │
+         ┌─────┴─────┐
+         │ Event Bus  │
+         └─────┬─────┘
+               │
+    ┌──────────┼──────────┐
+    │          │          │
+ Providers   Tools    Sessions
+ (4 LLMs)  (browser,  (persist)
+           cron,
+           skills)
+               │
+    ┌──────────┼──────────┐
+    │          │          │
+  Memory   Security    Media
+ (TF-IDF)  (sandbox)  (Whisper)
+               │
+    ┌──────────┼──────────┐
+    │          │          │
+  Voice     Canvas     Router
+(ElevenLabs) (A2UI)   (groups)
+               │
+    ┌──────────┼──────────┐
+    │          │          │
+  CLI      Dashboard   Docker
+(9 cmds)   (web UI)
+               │
+    ┌──────────┼──────────┐
+    │          │          │
+  macOS      iOS      Android
+  (app)    (node)     (node)
+```
 
-| Channel | OpenClaw | Groklets | Library |
-|---|---|---|---|
-| WhatsApp | ✅ | ✅ | Baileys |
-| Telegram | ✅ | ✅ | grammY |
-| Discord | ✅ | ✅ | discord.js |
-| Slack | ✅ | ✅ | Bolt |
-| Signal | ✅ | ✅ | signal-cli |
-| iMessage | ✅ | ✅ | BlueBubbles |
-| Google Chat | ✅ | ✅ | Webhook |
-| Microsoft Teams | ✅ | ✅ | Bot Framework |
-| Matrix | ✅ | ✅ | Client-Server API |
-| WebChat | ✅ | ✅ | Built-in |
-| Zalo | ✅ | — | — |
-| LINE | ✅ | — | — |
-| **Total** | **13** | **10** | |
+---
 
-### Plugins & Tools
+## ⚡ Models (selection + auth)
 
-| Plugin | OpenClaw | Groklets |
-|---|---|---|
-| Skills / Plugin system | ✅ ClawHub | ✅ SkillRegistry |
-| Browser control (CDP) | ✅ | ✅ |
-| Cron scheduler | ✅ | ✅ |
-| Webhooks | ✅ | ✅ |
-| Dashboard (web UI) | ✅ | ✅ |
-| Docker + Compose | ✅ | ✅ |
+Any OpenAI-compatible, Anthropic, Google, or xAI model works. Configure in YAML:
 
-### Native Apps
+```yaml
+providers:
+  openai:
+    type: openai
+    api_key: ${OPENAI_API_KEY}
+    model: gpt-4o
+  anthropic:
+    type: anthropic
+    api_key: ${ANTHROPIC_API_KEY}
+    model: claude-sonnet-4-20250514
+  google:
+    type: google
+    api_key: ${GOOGLE_API_KEY}
+    model: gemini-2.0-flash
+  xai:
+    type: xai
+    api_key: ${XAI_API_KEY}
+    model: grok-2-latest
+```
 
-| App | OpenClaw | Groklets |
-|---|---|---|
-| macOS (menu bar) | ✅ 54k Swift | ✅ 480 lines Swift |
-| iOS (companion node) | ✅ 17k Swift | ✅ 485 lines Swift |
-| Android (companion node) | ✅ 12k Kotlin | ✅ 402 lines Kotlin |
-| Voice Wake / Talk Mode | ✅ | ✅ |
-| Canvas surface | ✅ | ✅ |
-| Camera / screen capture | ✅ | ✅ |
+Model failover: if a provider goes down, Groklets automatically routes to the next healthy provider with cooldown tracking.
 
 ---
 
 ## 🚀 Quick Start
 
+Runtime: Node ≥ 20.
+
 ```bash
-# Install
+# Install globally
 npm install -g groklets
 
-# Setup (interactive wizard)
-groklets wizard
+# Interactive setup wizard (recommended)
+groklets onboard
 
-# Start Gateway
-groklets gateway config.yaml
+# Start the Gateway
+groklets gateway swarm.yaml --port 18789 --verbose
 
-# Or via Docker
+# Or run directly
+groklets run swarm.yaml --interactive
+
+# Submit a task from CLI
+groklets run swarm.yaml --task "Summarize today's news"
+```
+
+### From source (development)
+
+```bash
+git clone https://github.com/Arbazxkr/Groklets.git
+cd Groklets
+npm install
+npm run build
+npm run dev
+```
+
+### Docker
+
+```bash
 docker compose up -d
 ```
 
-## 🏗️ Architecture
+---
+
+## 📱 Channels
+
+### WhatsApp
+- Uses Baileys (no Meta Business API needed).
+- Scan QR code to link: auto-reconnect, typing indicators, message chunking.
+- Config: `channels.whatsapp.phoneNumber`
+
+### Telegram
+- Set `TELEGRAM_BOT_TOKEN` env var or `channels.telegram.botToken`.
+- Supports polling, typing actions, Markdown rendering, group chats.
+
+### Discord
+- Set `DISCORD_BOT_TOKEN` env var or `channels.discord.token`.
+- @mention gating in servers, DM support, auto-chunking at 2000 chars.
+
+### Slack
+- Set `SLACK_BOT_TOKEN` + `SLACK_APP_TOKEN` (Socket Mode).
+- @mention gating, DM support, user name resolution, Markdown.
+
+### Signal
+- Requires `signal-cli` installed and registered.
+- E2E encrypted, group support, JSON RPC mode.
+
+### iMessage (BlueBubbles)
+- Requires BlueBubbles server running on a Mac.
+- Config: `channels.imessage.serverUrl` + `channels.imessage.password`.
+
+### Google Chat
+- Webhook-based. Config: `channels.googlechat.webhookPort`.
+
+### Microsoft Teams
+- Bot Framework webhook. Config: `channels.teams.appId` + `channels.teams.appPassword`.
+
+### Matrix
+- Client-Server API with sync polling.
+- Config: `channels.matrix.homeserverUrl` + `channels.matrix.accessToken`.
+
+### WebChat
+- Built-in HTML/CSS/JS chat served from Gateway. No external deps.
+- Default port: `3737`.
+
+---
+
+## 🧠 Everything We Built
+
+### Core Platform
+- **Gateway WS control plane** — sessions, presence, authentication, config, events.
+- **CLI** — `groklets run`, `gateway`, `validate`, `status`, `doctor`, `health`, `init`, `onboard`.
+- **Agent runtime** — tool loop with streaming, context management, session persistence.
+- **Session model** — per-chat isolation, group routing, activation modes.
+- **Media pipeline** — image/audio/video ingest, Whisper transcription, GPT-4o vision.
+
+### Tools + Automation
+- **Browser control** — CDP-based Chrome/Chromium, no Puppeteer. Navigate, screenshot, click, type, evaluate.
+- **Canvas (A2UI)** — push HTML/components to client surfaces. Pre-built: card, form, chart, table, markdown.
+- **Cron + webhooks** — simplified schedule format (`every 5m`, `daily 09:00`), HTTP webhook routes with auth.
+- **Skills platform** — installable tool packs via `manifest.json` + `index.js` convention.
+- **Memory** — TF-IDF semantic search, automatic fact extraction from conversations, persistent to disk.
+
+### Runtime + Safety
+- **Channel routing** — activation modes (always, mention, keyword, dm-only), group isolation, priority queue, dedup.
+- **Presence + typing indicators** — per-channel typing actions.
+- **Usage tracking** — per-model cost tracking across all providers.
+- **Model failover** — health checks, cooldown periods, automatic rerouting.
+- **Security** — skill trust (SHA-256), input sanitization, token bucket rate limiter, tool allowlist/blocklist, VM sandbox.
+
+### Apps
+- **macOS** — SwiftUI menu bar control plane, Voice Wake, Talk Mode overlay, Gateway WS client, chat window.
+- **iOS** — SwiftUI companion. Canvas, Voice Wake (SFSpeechRecognizer), camera, status, settings.
+- **Android** — Jetpack Compose companion. Chat, Canvas, Status, Settings. OkHttp WebSocket, Material3.
+
+### Ops + Packaging
+- **Dashboard** — dark-mode web UI served from Gateway. Real-time agents, events, usage, sessions.
+- **Docker** — multi-stage Dockerfile (builder + production), docker-compose with all ports + volumes.
+- **WebChat** — self-contained HTML/CSS/JS chat interface served from Gateway.
+
+---
+
+## 🔒 Security Model
+
+Groklets connects to real messaging surfaces. Treat inbound messages as untrusted input.
+
+- **Input sanitization** — blocks script injection, shell injection, SQL injection, path traversal.
+- **Rate limiting** — token bucket per sender. Configurable max tokens and refill rate.
+- **Skill trust** — SHA-256 hash verification. Skills must be trusted before loading.
+- **Tool guard** — allowlist/blocklist mode. Block dangerous tools per-session or per-channel.
+- **Sandbox** — VM-based code execution with timeout. No filesystem/network access from sandboxed code.
+
+---
+
+## ⚙️ Configuration
+
+Minimal `swarm.yaml`:
+
+```yaml
+swarm:
+  name: "my-assistant"
+
+  providers:
+    openai:
+      type: openai
+      api_key: ${OPENAI_API_KEY}
+      model: gpt-4o
+      temperature: 0.7
+      max_tokens: 4096
+
+  agents:
+    coordinator:
+      provider: openai
+      system_prompt: |
+        You are the coordinator. Break down incoming tasks,
+        delegate as needed, and synthesize results.
+      subscriptions:
+        - task.created
+        - agent.response.*
+
+    researcher:
+      provider: openai
+      system_prompt: |
+        You are a research agent. Analyze information,
+        find patterns, and provide insights.
+      subscriptions:
+        - research.*
+        - task.created
+```
+
+### 🔧 Environment Variables
+
+| Variable | Description |
+|---|---|
+| `OPENAI_API_KEY` | OpenAI API key |
+| `ANTHROPIC_API_KEY` | Anthropic API key |
+| `GOOGLE_API_KEY` | Google Gemini API key |
+| `XAI_API_KEY` | xAI Grok API key |
+| `ELEVENLABS_API_KEY` | ElevenLabs TTS |
+| `TELEGRAM_BOT_TOKEN` | Telegram bot token |
+| `DISCORD_BOT_TOKEN` | Discord bot token |
+| `SLACK_BOT_TOKEN` | Slack bot token |
+| `SLACK_APP_TOKEN` | Slack app token (Socket Mode) |
+
+---
+
+## 📁 Project Structure
 
 ```
-┌─────────────────────────────────────────────────┐
-│                  Groklets Engine                 │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐      │
-│  │  Agent 1  │  │  Agent 2  │  │  Agent N  │     │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘      │
-│       │              │              │             │
-│  ┌────┴──────────────┴──────────────┴────┐       │
-│  │            Event Bus (pub/sub)         │       │
-│  └────┬──────────────┬──────────────┬────┘       │
-│       │              │              │             │
-│  ┌────┴─────┐  ┌────┴─────┐  ┌────┴─────┐      │
-│  │ Providers │  │  Tools   │  │ Sessions │       │
-│  │ (4 LLMs) │  │ Registry │  │  Store   │       │
-│  └──────────┘  └──────────┘  └──────────┘       │
-│                                                   │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐       │
-│  │  Memory  │  │ Security │  │  Media   │       │
-│  │  (TF-IDF)│  │(sandbox) │  │(pipeline)│       │
-│  └──────────┘  └──────────┘  └──────────┘       │
-│                                                   │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐       │
-│  │  Voice   │  │  Canvas  │  │  Router  │       │
-│  │(11Labs)  │  │  (A2UI)  │  │(groups)  │       │
-│  └──────────┘  └──────────┘  └──────────┘       │
-└───────────────────┬─────────────────────────────┘
-                    │ WebSocket
-        ┌───────────┼───────────┐
-        │           │           │
-   ┌────┴────┐ ┌───┴────┐ ┌───┴────┐
-   │ Gateway │ │  CLI   │ │  Web   │
-   │  (WS)  │ │(9 cmds)│ │ (Chat) │
-   └────┬────┘ └────────┘ └───┬────┘
-        │                      │
-   ┌────┴──────────────────────┴────┐
-   │        10 Channels             │
-   │  WA · TG · Discord · Slack    │
-   │  Signal · iMsg · GChat        │
-   │  Teams · Matrix · WebChat     │
-   └────────────────────────────────┘
-        │
-   ┌────┴──────────────────────┐
-   │       Native Apps         │
-   │  macOS · iOS · Android    │
-   └───────────────────────────┘
+Groklets/
+├── src/
+│   ├── core/               # Engine + runtime
+│   │   ├── agent.ts            # Agent lifecycle + tool loop
+│   │   ├── canvas.ts           # A2UI push system
+│   │   ├── context.ts          # Context window management
+│   │   ├── engine.ts           # Orchestration engine
+│   │   ├── event-bus.ts        # Pub/sub with wildcards
+│   │   ├── failover.ts         # Model failover + health
+│   │   ├── gateway.ts          # WebSocket control plane
+│   │   ├── media.ts            # Image/audio/video pipeline
+│   │   ├── memory.ts           # TF-IDF memory + facts
+│   │   ├── provider.ts         # LLM provider abstraction
+│   │   ├── router.ts           # Advanced message routing
+│   │   ├── scheduler.ts        # Task scheduler (deps + priority)
+│   │   ├── security.ts         # Trust, sanitize, rate limit
+│   │   ├── session.ts          # Session persistence
+│   │   ├── tool-executor.ts    # Agentic tool loop
+│   │   ├── usage.ts            # Cost tracking
+│   │   └── voice.ts            # ElevenLabs TTS + Whisper STT
+│   ├── channels/            # 10 messaging platforms
+│   │   ├── whatsapp.ts         # Baileys
+│   │   ├── telegram.ts         # grammY
+│   │   ├── discord.ts          # discord.js
+│   │   ├── slack.ts            # Bolt
+│   │   ├── signal.ts           # signal-cli
+│   │   ├── imessage.ts         # BlueBubbles
+│   │   ├── googlechat.ts       # Webhook
+│   │   ├── teams.ts            # Bot Framework
+│   │   ├── matrix.ts           # Client-Server API
+│   │   └── webchat.ts          # Built-in HTML
+│   ├── plugins/             # Extensions
+│   │   ├── skills.ts           # Skill registry
+│   │   ├── browser.ts          # CDP Chrome control
+│   │   ├── automation.ts       # Cron + webhooks
+│   │   └── dashboard.ts        # Web dashboard
+│   ├── providers/           # LLM providers
+│   │   ├── openai-provider.ts
+│   │   ├── anthropic-provider.ts
+│   │   ├── google-provider.ts
+│   │   └── xai-provider.ts
+│   ├── cli/                 # CLI commands
+│   └── utils/               # Config, logger, retry
+├── apps/
+│   ├── macos/               # SwiftUI menu bar app
+│   ├── ios/                 # SwiftUI companion node
+│   └── android/             # Jetpack Compose companion
+├── tests/                   # Vitest test suite
+├── Dockerfile
+├── docker-compose.yml
+└── Groklets.jpg
 ```
 
-## 📦 What's Inside
+---
 
-```
-src/
-├── core/           # Engine, agents, providers, event bus
-│   ├── agent.ts        # Agent lifecycle + tool loop
-│   ├── canvas.ts       # A2UI push system
-│   ├── context.ts      # Context window management
-│   ├── engine.ts       # Orchestration engine
-│   ├── event-bus.ts    # Pub/sub with wildcards
-│   ├── failover.ts     # Model failover
-│   ├── gateway.ts      # WebSocket control plane
-│   ├── media.ts        # Image/audio/video pipeline
-│   ├── memory.ts       # TF-IDF memory + fact extraction
-│   ├── provider.ts     # LLM provider abstraction
-│   ├── router.ts       # Advanced message routing
-│   ├── scheduler.ts    # Task scheduler
-│   ├── security.ts     # Trust, sanitize, rate limit
-│   ├── session.ts      # Session persistence
-│   ├── tool-executor.ts # Agentic tool loop
-│   ├── usage.ts        # Cost tracking
-│   └── voice.ts        # ElevenLabs TTS + Whisper STT
-├── channels/       # 10 messaging platforms
-├── plugins/        # Skills, browser, cron, dashboard
-├── providers/      # OpenAI, Anthropic, Google, xAI
-├── cli/            # 9 CLI commands
-└── utils/          # Config, logger, retry
+## ⚠️ Important Notes
 
-apps/
-├── macos/          # SwiftUI menu bar app
-├── ios/            # SwiftUI companion node
-└── android/        # Jetpack Compose companion
-```
+1. **Local-first** — everything runs on your machine. No cloud dependency (except LLM APIs).
+2. **WhatsApp uses Baileys** — QR code login, no Meta Business API fees.
+3. **Voice requires API keys** — ElevenLabs for TTS, OpenAI for Whisper STT.
+4. **Browser control requires Chrome** — auto-detects Chrome/Chromium path.
+5. **Native apps are companions** — they connect to the Gateway over WebSocket, they don't run the engine.
+6. **Skills are sandboxed** — SHA-256 verified before loading. Untrusted skills are blocked.
+
+---
 
 ## 📜 License
 
-MIT — Arbaz Khan
+MIT
