@@ -38,6 +38,11 @@ export {
   type WorkflowDefinition, type WorkflowStep, type WorkflowRun,
   type StepResult, type AgentExecutor,
 } from "./core/workflow.js";
+export {
+  applyLinkUnderstanding, enrichMessagesWithLinks,
+  extractLinksFromMessage, runLinkUnderstanding, formatLinkUnderstandingBody,
+  type LinkConfig, type LinkResult, type LinkUnderstandingResult,
+} from "./link-understanding/index.js";
 
 // Utils
 export { loadConfig, buildEngineFromConfig, loadAndBuild } from "./utils/config.js";
